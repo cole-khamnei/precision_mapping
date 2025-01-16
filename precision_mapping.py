@@ -199,6 +199,8 @@ def main(test_args=None):
 
         exclude_index_path = SUBCORTEX_MASK_PATH if args.exclude_subcortex else None
         mask_path = GEODESIC_MASK_GENERIC_PATH.format(dist=DIST_THRESHOLD)
+        mask_path = None #TODO: Fix masks!
+        
         sc = generate_voxel_FC(voxel_data, save_path=save_paths["FC"], sparsity=args.sparsity,
                                exclude_index_path=exclude_index_path, mask_path=mask_path,
                                block_size=5000)
