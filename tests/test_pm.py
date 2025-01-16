@@ -19,7 +19,7 @@ class TestPrecisionMapping(unittest.TestCase):
         # self.assertEqual(fmri_data[2][1], 1)
 
     def test_pm_main(self):
-        pm.main(test_args=["-c", constants.EXAMPLE_DTSERIES, "-o", "tests/outputs", "-p", "example"])
+        pm.main(test_args=["-c", constants.EXAMPLE_DTSERIES, "-o", "tests/outputs", "-p", "example", "--overwrite"])
         # pm.main(test_args=["-c", constants.EXAMPLE_DTSERIES, "-o tests/outputs", "--overwrite"])
 
 
