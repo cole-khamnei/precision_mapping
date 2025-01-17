@@ -49,12 +49,17 @@ def generate_voxel_FC(voxel_data, save_path=None, sparsity=0.1, exclude_index_pa
     exclude_index = np.load(exclude_index_path) if exclude_index_path else None 
     mask = scipy.sparse.load_npz(mask_path) if mask_path else None
 
-    sc = tmt.matrix.SparseCorrelator.run(voxel_data[:, :], mask=mask, exclude_index=exclude_index,
+    sc = tmt.matrix.SparseCorrelator.run(voxel_data[:, :], mask=mask, symmetric=True,
+                                         exclude_index=exclude_index,
                                          sparsity_percent=sparsity, block_size=block_size)
     if save_path:
         scipy.sparse.save_npz(save_path, sc)
 
     return sc
+
+# ----------------------------------------------------------------------------# 
+# ----------              Infomap Partition Functions               ----------# 
+# ----------------------------------------------------------------------------# 
 
 
 def infomap_parcellation(matrix, save_path=None, num_trials=1, **kwargs):
@@ -94,6 +99,10 @@ def process_partition(partition, cifti, min_voxels=0, n_vertices=91_282, filter_
     precision_map_values = CAP_tools.utils.cifti_map(None, vertex_labels, cifti)
     return precision_map_values, (index, groups)
 
+# ----------------------------------------------------------------------------# 
+# --------------------               Plots                --------------------# 
+# ----------------------------------------------------------------------------# 
+
 
 def plot_precision_map(precision_map_values, title="", save_path=None):
     """ """
@@ -125,6 +134,10 @@ def write_dlabel_precision_map(precision_map_values, save_path, label=""):
     precision_map_labels["left"] = precision_map_labels["left"].astype(str)
     precision_map_labels["right"] = precision_map_labels["right"].astype(str)
     CAP_tools.sfm.write_labels_to_dlabel(precision_map_labels, save_path, label_name=label)
+
+# ----------------------------------------------------------------------------# 
+# ----------------           Main Helper Functions            ----------------# 
+# ----------------------------------------------------------------------------# 
 
 
 def create_save_paths(args):
