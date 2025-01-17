@@ -5,6 +5,7 @@ from tqdm.auto import tqdm
 
 
 def iterate_over_axis(array, axis=None):
+    """ """
     return (np.take(array, i, axis=axis) for i in tqdm(range(array.shape[axis]), leave=False))
 
 
@@ -29,4 +30,5 @@ def nan_pearsonr(a, b, axis=None):
 
 
 def get_shared_nan_index(a, b, axis=0):
+    """ """
     return np.isnan(a).mean(axis=axis).astype(bool) | np.isnan(b).mean(axis=axis).astype(bool)

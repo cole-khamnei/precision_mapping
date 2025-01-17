@@ -19,7 +19,9 @@ import torch_math_tools as tmt
 import CAP_tools
 from CAP_tools import sfm
 
-#\section constants
+# ----------------------------------------------------------------------------# 
+# --------------------             Constants              --------------------# 
+# ----------------------------------------------------------------------------# 
 
 DIST_DIR = "/data/data7/network_control/projects/network_control/resources/brain_distances"
 SUBCORTEX_MASK_PATH = os.path.join(DIST_DIR, "subcortex_mask.npy")
@@ -27,7 +29,10 @@ GEODESIC_MASK_PATH = os.path.join(DIST_DIR, f"geodesic_mask_30.npz")
 GEODESIC_MASK_GENERIC_PATH = os.path.join(DIST_DIR, "geodesic_mask_{dist}.npz")
 DIST_THRESHOLD = 10
 
-# \section functions
+# ----------------------------------------------------------------------------# 
+# --------------------             Functions              --------------------# 
+# ----------------------------------------------------------------------------# 
+
 
 def load_voxel_data(dtseries_paths):
     """ """
@@ -138,7 +143,9 @@ def create_save_paths(args):
     return save_paths
 
 
-# \section main
+# ----------------------------------------------------------------------------# 
+# --------------------                Main                --------------------# 
+# ----------------------------------------------------------------------------# 
 
 
 def get_arguments(test_args: list = None):
@@ -189,6 +196,7 @@ def get_arguments(test_args: list = None):
 
 
 def main(test_args=None):
+    """ """
     print()
     args = get_arguments(test_args=test_args)
     save_paths = create_save_paths(args)
@@ -228,4 +236,6 @@ def main(test_args=None):
 if __name__ == '__main__':
     main()
 
-# \section end
+# ----------------------------------------------------------------------------# 
+# --------------------                End                 --------------------# 
+# ----------------------------------------------------------------------------#
