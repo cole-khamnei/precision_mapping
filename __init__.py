@@ -1,4 +1,5 @@
 from .src import *
 from .src import plot
 from .src import utils
-from . import precision_mapping as pm
+from .src import network_assignment as na
+# from . import precision_mapping as pm

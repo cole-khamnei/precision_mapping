@@ -1,5 +1,6 @@
 import numpy as np
 import scipy
+import nibabel as nb
 
 from tqdm.auto import tqdm
 
@@ -32,3 +33,15 @@ def nan_pearsonr(a, b, axis=None):
 def get_shared_nan_index(a, b, axis=0):
     """ """
     return np.isnan(a).mean(axis=axis).astype(bool) | np.isnan(b).mean(axis=axis).astype(bool)
+
+# \section cifti helpers
+
+def load_voxel_data(dtseries_paths):
+    """ """
+    if not isinstance(dtseries_paths, str):
+        return np.vstack([load_voxel_data(path) for path in dtseries_paths])
+
+    cifti = nb.load(dtseries_paths)
+    return cifti.get_fdata()
+
+# \section end

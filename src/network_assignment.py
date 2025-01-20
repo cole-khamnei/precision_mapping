@@ -1,0 +1,99 @@
+import numpy as np
+import scipy
+import nibabel as nb
+
+from . import utils
+
+def get_cortex_data(full_data, cifti):
+    pax = cifti.header.get_axis(1)
+    slice_LUT = {structure: sl for structure, sl,_  in pax.iter_structures()}
+    cortex_data_L = full_data[:, slice_LUT["CIFTI_STRUCTURE_CORTEX_LEFT"]]
+    cortex_data_R = full_data[:, slice_LUT["CIFTI_STRUCTURE_CORTEX_RIGHT"]]
+    return np.hstack([cortex_data_L, cortex_data_R])
+
+
+def process_partition(partition, min_voxels=0, filter_subcortex=True):
+    """ """
+    index, groups = partition
+    if filter_subcortex:
+        # TODO: fix these issues, subcortex masking may not be correct
+        subcortex_index = index >= (32_492 * 2)
+        index, groups = index[~subcortex_index], np.unique(groups[~subcortex_index], return_inverse=True)[1]
+
+    groups = np.random.permutation(np.max(groups))[groups - 1]    
+    unique_groups, counts = np.unique(groups, return_counts=True)
+    count_filter = np.isin(groups, unique_groups[counts >= min_voxels])
+    
+    vertex_labels = np.full(np.max(index) + 1, fill_value=np.nan)
+    vertex_labels[index[count_filter]] = groups[count_filter]
+    
+    return vertex_labels, (index, groups)
+
+
+def get_partition_cortex(partition, cifti):
+    """ """
+    vertex_labels, partition = process_partition(partition)
+    # vertex_labels = np.full(np.max(partition[0]) + 1, fill_value=np.nan)
+    # vertex_labels[partition[0]] = partition[1]
+    return get_cortex_data(vertex_labels.reshape(1, -1), cifti)[0]
+
+
+def np_corr(x, y):
+    """ """
+    x, y = x.T, y.T
+    x_demeaned = x - x.mean(axis=1, keepdims=True)
+    y_demeaned = y - y.mean(axis=1, keepdims=True)
+
+    x_norm = x_demeaned / np.sqrt(np.sum(x_demeaned ** 2, axis=1, keepdims=True))
+    y_norm = y_demeaned / np.sqrt(np.sum(y_demeaned ** 2, axis=1, keepdims=True))
+    return x_norm @ y_norm.T
+
+
+def load_priors():
+    """ """
+    priors_path = "/data/data7/network_control/projects/voxel_analysis/resources/priors.mat"
+
+    priors = scipy.io.loadmat(priors_path)
+    FC, spatial, network_labels, _ = priors["Priors"][0, 0]
+    network_labels = np.array([lab[0][0] for lab in network_labels])
+    FC, spatial = FC.T, spatial.T
+    return FC, spatial, network_labels
+
+
+def get_network_assignment_labels(vertex_labels, vertex_data, network_labels, spatial_priors, FC_priors):
+    """ """
+    vertex_labels[np.isnan(vertex_labels)] = np.nanmax(vertex_labels) + 1
+
+    remapped_vertex_labels = np.unique(vertex_labels, return_inverse=True)[1]
+    
+    cluster_labels = np.sort(np.unique(remapped_vertex_labels))
+    roi_index_set = remapped_vertex_labels.reshape(-1, 1) == cluster_labels
+    
+    roi_mean_signals = np.array([vertex_data[:, ri].mean(axis=1) for ri in roi_index_set.T]).T
+    roi_mean_FCs = np_corr(vertex_data, roi_mean_signals)
+    fc_corr = np_corr(FC_priors.T, roi_mean_FCs)
+    sp_corr = np_corr(spatial_priors.T, roi_index_set * 1)
+    sp_fc_corr = sp_corr * fc_corr
+    
+    sp_fc_index = np.argmax(sp_fc_corr, axis=0)
+
+    return sp_fc_index[remapped_vertex_labels], network_labels[sp_fc_index[remapped_vertex_labels]]
+
+
+def assign_networks(cifti_paths, partition_path, save_path):
+    """ """
+
+    example_cifti = nb.load(cifti_paths[0])
+    full_vertex_data = utils.load_voxel_data(cifti_paths)
+    vertex_data = get_cortex_data(full_vertex_data, example_cifti)
+
+    partition = np.load(partition_path)
+    vertex_labels = get_partition_cortex(partition, example_cifti)
+
+    FC, spatial, network_labels = load_priors()
+    vn, vns = get_network_assignment_labels(vertex_labels, vertex_data, network_labels, spatial, FC)
+    
+    if save_path:
+        np.save(save_path, [vn, vns])
+    
+    print("Created network assignments.")

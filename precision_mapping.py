@@ -10,6 +10,8 @@ import seaborn as sns
 
 from infomap import Infomap
 
+from src import network_assignment as na
+
 voxel_analysis_dir = os.path.dirname(os.path.abspath(__file__))
 project_path = os.path.join(voxel_analysis_dir, "../")
 sys.path.insert(0, project_path)
@@ -32,14 +34,6 @@ DIST_THRESHOLD = 30
 # ----------------------------------------------------------------------------# 
 # --------------------             Functions              --------------------# 
 # ----------------------------------------------------------------------------# 
-
-
-def get_cortex_data(full_data, cifti):
-    pax = cifti.header.get_axis(1)
-    slice_LUT = {structure: sl for structure, sl,_  in pax.iter_structures()}
-    cortex_data_L = full_data[:, slice_LUT["CIFTI_STRUCTURE_CORTEX_LEFT"]]
-    cortex_data_R = full_data[:, slice_LUT["CIFTI_STRUCTURE_CORTEX_RIGHT"]]
-    return np.hstack([cortex_data_L, cortex_data_R])
 
 
 def load_voxel_data(dtseries_paths):
@@ -99,82 +93,6 @@ def infomap_parcellation(matrix, save_path=None, num_trials=1, **kwargs):
     
     return index, values
 
-
-def process_partition(partition, cifti, min_voxels=0, n_vertices=91_282, filter_subcortex=True):
-    """ """
-    index, groups = partition
-    if filter_subcortex:
-        # TODO: fix these issues, subcortex masking may not be correct
-        subcortex_index = index >= (32_492 * 2)
-        index, groups = index[~subcortex_index], np.unique(groups[~subcortex_index], return_inverse=True)[1]
-
-    groups = np.random.permutation(np.max(groups))[groups - 1]    
-    unique_groups, counts = np.unique(groups, return_counts=True)
-    count_filter = np.isin(groups, unique_groups[counts >= min_voxels])
-    
-    vertex_labels = np.full(n_vertices, fill_value=np.nan)
-    vertex_labels[index[count_filter]] = groups[count_filter]
-    
-    precision_map_values = CAP_tools.utils.cifti_map(None, vertex_labels, cifti)
-    return precision_map_values, (index, groups)
-
-
-def get_partition_cortex(partition, cifti):
-    """ """
-    _, partition = process_partition(partition, cifti)
-    vertex_labels = np.full(np.max(partition[0]) + 1, fill_value=np.nan)
-    vertex_labels[partition[0]] = partition[1]
-    return get_cortex_data(vertex_labels.reshape(1, -1), cifti)[0]
-
-
-def np_corr(x, y):
-    """ """
-    x, y = x.T, y.T
-    x_demeaned = x - x.mean(axis=1, keepdims=True)
-    y_demeaned = y - y.mean(axis=1, keepdims=True)
-
-    x_norm = x_demeaned / np.sqrt(np.sum(x_demeaned ** 2, axis=1, keepdims=True))
-    y_norm = y_demeaned / np.sqrt(np.sum(y_demeaned ** 2, axis=1, keepdims=True))
-    return x_norm @ y_norm.T
-
-
-def load_priors():
-    """ """
-    priors_path = "/data/data7/network_control/projects/voxel_analysis/resources/priors.mat"
-
-    priors = scipy.io.loadmat(priors_path)
-    FC, spatial, network_labels, _ = priors["Priors"][0, 0]
-    network_labels = np.array([lab[0][0] for lab in network_labels])
-    FC, spatial = FC.T, spatial.T
-    return FC, spatial, network_labels
-
-
-def cortex_plot(data, cifti, rois=None, cmap=plt.cm.coolwarm):
-    """ """
-    data_values = CAP_tools.utils.cifti_map(rois, data, cifti)
-    fig, ax = plt.subplots(figsize=(12, 4))
-    ax, _ = sfm.surface_plot(data_values, cmap=cmap, ax=ax)
-    return ax, data_values
-
-
-def get_network_assigments(vertex_labels, vertex_data, network_labels, spatial_priors, FC_priors):
-    """ """
-    vertex_labels[np.isnan(vertex_labels)] = np.nanmax(vertex_labels) + 1
-
-    remapped_vertex_labels = np.unique(vertex_labels, return_inverse=True)[1]
-    
-    cluster_labels = np.sort(np.unique(remapped_vertex_labels))
-    roi_index_set = remapped_vertex_labels.reshape(-1, 1) == cluster_labels
-    
-    roi_mean_signals = np.array([vertex_data[:, ri].mean(axis=1) for ri in roi_index_set.T]).T
-    roi_mean_FCs = np_corr(vertex_data, roi_mean_signals)
-    fc_corr = np_corr(FC_priors.T, roi_mean_FCs)
-    sp_corr = np_corr(spatial_priors.T, roi_index_set * 1)
-    sp_fc_corr = sp_corr * fc_corr
-    
-    sp_fc_index = np.argmax(sp_fc_corr, axis=0)
-
-    return sp_fc_index[remapped_vertex_labels], network_labels[sp_fc_index[remapped_vertex_labels]]
 
 # ----------------------------------------------------------------------------# 
 # --------------------               Plots                --------------------# 
@@ -355,26 +273,32 @@ def parcel_detection(args, save_paths):
     print(f"Created infomap partition")
 
 
-def network_assignement(args, save_paths):
+def network_assignment(args, save_paths):
     """ """
 
-    if args.mode not in ["all"] or args.no_plots:
+    if args.mode not in ["all"]:
         return
 
-    example_cifti = nb.load(args.ciftis[0])
-    partition = np.load(args.partition)
+    # if os.path.exists(save_paths["network_assignments"]) and not args.overwrite:
+    #     print(f"{save_paths['network_assignments']} already exists and no '--overwrite' flag given. Skipping netwrok assignment.")
+    #     return
 
-    full_vertex_data = load_voxel_data(args.ciftis)
-    vertex_data = get_cortex_data(full_vertex_data, example_cifti)
-    vertex_labels = get_partition_cortex(partition, example_cifti)
+    na.assign_networks(args.ciftis, args.partition, save_paths["network_assignments"])
 
-    FC, spatial, network_labels = load_priors()
-    vn, vns = get_network_assigments(vertex_labels, vertex_data, network_labels, spatial, FC)
+    # example_cifti = nb.load(args.ciftis[0])
+    # partition = np.load(args.partition)
+
+    # full_vertex_data = load_voxel_data(args.ciftis)
+    # vertex_data = na.get_cortex_data(full_vertex_data, example_cifti)
+    # vertex_labels = na.get_partition_cortex(partition, example_cifti)
+
+    # FC, spatial, network_labels = na.load_priors()
+    # vn, vns = na.get_network_assignments(vertex_labels, vertex_data, network_labels, spatial, FC)
     
-    if save_paths["network_assignments"]:
-        np.save(save_paths["network_assignments"], [vn, vns])
+    # if save_paths["network_assignments"]:
+    #     np.save(save_paths["network_assignments"], [vn, vns])
     
-    print("Created network assignments.")
+    # print("Created network assignments.")
 
 
 def make_plots(args, save_paths):
@@ -385,8 +309,9 @@ def make_plots(args, save_paths):
     partition = np.load(args.partition)
     print(f"Loaded infomap partition")
     cifti = nb.load(args.ciftis[0])
-    precision_map_values, partition = process_partition(partition, cifti)
-    plot_precision_map(precision_map_values, save_path=save_paths["surf_plot"])
+    # TODO: implement surface map
+    # precision_map_values, partition = process_partition(partition, cifti)
+    # plot_precision_map(precision_map_values, save_path=save_paths["surf_plot"])
     precision_map_QC_plots(partition, save_path=save_paths["QC"])
     # write_dlabel_precision_map(precision_map_values, save_paths["dlabel"], label=save_paths["label"])
     print("Generated precision mapping plots.")
@@ -400,7 +325,7 @@ def main(test_args=None):
 
     generate_correlation_matrix(args, save_paths)
     parcel_detection(args, save_paths)
-    network_assignement(args, save_paths)
+    network_assignment(args, save_paths)
     make_plots(args, save_paths)
     print("Done.")
 
