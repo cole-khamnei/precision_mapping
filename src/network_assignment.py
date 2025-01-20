@@ -4,6 +4,20 @@ import nibabel as nb
 
 from . import utils
 
+
+#\section network assignment helpers
+
+def load_priors():
+    """ """
+    priors_path = "/data/data7/network_control/projects/voxel_analysis/resources/priors.mat"
+
+    priors = scipy.io.loadmat(priors_path)
+    FC, spatial, network_labels, _ = priors["Priors"][0, 0]
+    network_labels = np.array([lab[0][0] for lab in network_labels])
+    FC, spatial = FC.T, spatial.T
+    return FC, spatial, network_labels
+
+
 def get_cortex_data(full_data, cifti):
     pax = cifti.header.get_axis(1)
     slice_LUT = {structure: sl for structure, sl,_  in pax.iter_structures()}
@@ -38,26 +52,7 @@ def get_partition_cortex(partition, cifti):
     return get_cortex_data(vertex_labels.reshape(1, -1), cifti)[0]
 
 
-def np_corr(x, y):
-    """ """
-    x, y = x.T, y.T
-    x_demeaned = x - x.mean(axis=1, keepdims=True)
-    y_demeaned = y - y.mean(axis=1, keepdims=True)
-
-    x_norm = x_demeaned / np.sqrt(np.sum(x_demeaned ** 2, axis=1, keepdims=True))
-    y_norm = y_demeaned / np.sqrt(np.sum(y_demeaned ** 2, axis=1, keepdims=True))
-    return x_norm @ y_norm.T
-
-
-def load_priors():
-    """ """
-    priors_path = "/data/data7/network_control/projects/voxel_analysis/resources/priors.mat"
-
-    priors = scipy.io.loadmat(priors_path)
-    FC, spatial, network_labels, _ = priors["Priors"][0, 0]
-    network_labels = np.array([lab[0][0] for lab in network_labels])
-    FC, spatial = FC.T, spatial.T
-    return FC, spatial, network_labels
+#\section network assignment functions
 
 
 def get_network_assignment_labels(vertex_labels, vertex_data, network_labels, spatial_priors, FC_priors):
@@ -70,9 +65,9 @@ def get_network_assignment_labels(vertex_labels, vertex_data, network_labels, sp
     roi_index_set = remapped_vertex_labels.reshape(-1, 1) == cluster_labels
     
     roi_mean_signals = np.array([vertex_data[:, ri].mean(axis=1) for ri in roi_index_set.T]).T
-    roi_mean_FCs = np_corr(vertex_data, roi_mean_signals)
-    fc_corr = np_corr(FC_priors.T, roi_mean_FCs)
-    sp_corr = np_corr(spatial_priors.T, roi_index_set * 1)
+    roi_mean_FCs = utils.np_corr(vertex_data, roi_mean_signals)
+    fc_corr = utils.np_corr(FC_priors.T, roi_mean_FCs)
+    sp_corr = utils.np_corr(spatial_priors.T, roi_index_set * 1)
     sp_fc_corr = sp_corr * fc_corr
     
     sp_fc_index = np.argmax(sp_fc_corr, axis=0)
@@ -97,3 +92,6 @@ def assign_networks(cifti_paths, partition_path, save_path):
         np.save(save_path, [vn, vns])
     
     print("Created network assignments.")
+
+
+#\section end

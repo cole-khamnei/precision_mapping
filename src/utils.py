@@ -34,6 +34,21 @@ def get_shared_nan_index(a, b, axis=0):
     """ """
     return np.isnan(a).mean(axis=axis).astype(bool) | np.isnan(b).mean(axis=axis).astype(bool)
 
+
+# \section np helpers
+
+
+def np_corr(x, y):
+    """ """
+    x, y = x.T, y.T
+    x_demeaned = x - x.mean(axis=1, keepdims=True)
+    y_demeaned = y - y.mean(axis=1, keepdims=True)
+
+    x_norm = x_demeaned / np.sqrt(np.sum(x_demeaned ** 2, axis=1, keepdims=True))
+    y_norm = y_demeaned / np.sqrt(np.sum(y_demeaned ** 2, axis=1, keepdims=True))
+    return x_norm @ y_norm.T
+
+
 # \section cifti helpers
 
 def load_voxel_data(dtseries_paths):
