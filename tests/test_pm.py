@@ -51,7 +51,4 @@ if __name__ == "__main__":
     unittest.main()
 
 
-
-
-
 def mode_selector()

@@ -5,7 +5,10 @@ import nibabel as nb
 from . import utils
 
 
-#\section network assignment helpers
+# ----------------------------------------------------------------------------# 
+# -----------              Network Assignment Helpers              -----------# 
+# ----------------------------------------------------------------------------# 
+
 
 def load_priors():
     """ """
@@ -19,6 +22,7 @@ def load_priors():
 
 
 def get_cortex_data(full_data, cifti):
+    """ """
     pax = cifti.header.get_axis(1)
     slice_LUT = {structure: sl for structure, sl,_  in pax.iter_structures()}
     cortex_data_L = full_data[:, slice_LUT["CIFTI_STRUCTURE_CORTEX_LEFT"]]
@@ -52,7 +56,9 @@ def get_partition_cortex(partition, cifti):
     return get_cortex_data(vertex_labels.reshape(1, -1), cifti)[0]
 
 
-#\section network assignment functions
+# ----------------------------------------------------------------------------# 
+# ---------               Network Assignment Functions               ---------# 
+# ----------------------------------------------------------------------------# 
 
 
 def get_network_assignment_labels(vertex_labels, vertex_data, network_labels, spatial_priors, FC_priors):
@@ -94,4 +100,6 @@ def assign_networks(cifti_paths, partition_path, save_path):
     print("Created network assignments.")
 
 
-#\section end
+# ----------------------------------------------------------------------------# 
+# --------------------                End                 --------------------# 
+# ----------------------------------------------------------------------------#

@@ -161,6 +161,7 @@ def create_save_paths(args):
 # --------------------                Main                --------------------# 
 # ----------------------------------------------------------------------------# 
 
+
 def check_arguments(args):
     """ """
     # TODO: implement argument checks
