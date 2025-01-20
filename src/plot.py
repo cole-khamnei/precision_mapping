@@ -2,6 +2,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 
+
+from . import surface_mapping as sfm
+
 # ----------------------------------------------------------------------------# 
 # --------------------               Plots                --------------------# 
 # ----------------------------------------------------------------------------# 
@@ -45,6 +48,41 @@ def evar_timeseries_plot(ev_s, axes=None, label=""):
     a1.legend(fontsize=7)
 
     return (a0, a1)
+
+
+# \section precision mapping plots
+
+
+def plot_precision_map(precision_map_values, title="", save_path=None):
+    """ """
+    n_parcels = max(np.nanmax(precision_map_values["left"]), np.nanmax(precision_map_values["right"]))
+    fig, ax = plt.subplots(figsize=(12, 4))
+    ax, _ = sfm.surface_plot(precision_map_values, cmap=plt.cm.Spectral, ax=ax)
+    ax.set_title(f"{title} Precision Map\nNumber of Parcels: {n_parcels:0.0f}")
+    if save_path:
+        fig.savefig(save_path, bbox_inches="tight", pad_inches=0.1)
+
+
+def precision_map_QC_plots(partition, save_path=None):
+    """ """
+    index, groups = partition
+    unique_groups, counts = np.unique(groups, return_counts=True)
+    
+    fig, ax = plt.subplots(figsize=(5, 3))
+    sns.kdeplot(counts, ax=ax, bw_method=0.1,
+                label=f"Total Communities Found: {len(counts)}\nMedian Size: {np.median(counts) // 1}\nMax Size: {np.max(counts)}")
+    ax.set(xlabel="Cluster Vertices", title="Distribution of Infomap Cluster Size")
+    ax.legend(title="")
+    if save_path:
+        fig.savefig(save_path, bbox_inches="tight", pad_inches=0.1)
+
+
+def write_dlabel_precision_map(precision_map_values, save_path, label=""):
+    """ """
+    precision_map_labels = precision_map_values.copy()
+    precision_map_labels["left"] = precision_map_labels["left"].astype(str)
+    precision_map_labels["right"] = precision_map_labels["right"].astype(str)
+    sfm.write_labels_to_dlabel(precision_map_labels, save_path, label_name=label)
 
 
 # ----------------------------------------------------------------------------# 
