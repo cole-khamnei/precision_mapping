@@ -166,7 +166,7 @@ def create_save_paths(args):
     """ """
     save_paths = {}
     subcortex_status = "_SC" if not args.exclude_subcortex else ""
-    mask_tag = "_D{DIST_THRESHOLD}" if args.mask else ""
+    mask_tag = f"_D{DIST_THRESHOLD}" if args.mask else ""
     tag = f"S{args.sparsity * 10:.0f}{mask_tag}{subcortex_status}"
     prefix = args.prefix
     save_paths["tag"] = tag
