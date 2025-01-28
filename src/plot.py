@@ -50,7 +50,9 @@ def evar_timeseries_plot(ev_s, axes=None, label=""):
     return (a0, a1)
 
 
-# \section precision mapping plots
+# ----------------------------------------------------------------------------# 
+# --------------            Precision Mapping Plots             --------------# 
+# ----------------------------------------------------------------------------# 
 
 
 def plot_precision_map(precision_map_values, title="", save_path=None):

@@ -85,7 +85,9 @@ def infomap_parcellation(matrix, save_path=None, num_trials=1, **kwargs):
     return index, values
 
 
-# \section  precision mapping pipeline steps
+# ----------------------------------------------------------------------------# 
+# -----                 Precision Mapping Pipeline Steps                 -----# 
+# ----------------------------------------------------------------------------# 
 
 
 def generate_correlation_matrix(args, save_paths):
@@ -186,6 +188,7 @@ def create_save_paths(args):
 # ----------------------------------------------------------------------------# 
 # --------------------                Main                --------------------# 
 # ----------------------------------------------------------------------------# 
+
 
 def check_arguments(args):
     """ """
