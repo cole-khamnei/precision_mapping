@@ -1,6 +1,8 @@
 import numpy as np
 import scipy
-import nibabel as nb
+# import nibabel as nb
+import multiprocess as mp
+# import multiprocessing as mp
 
 from tqdm.auto import tqdm
 
@@ -34,6 +36,17 @@ def load_voxel_data(dtseries_paths):
     cifti = nb.load(dtseries_paths)
     return cifti.get_fdata()
 
+
+# \section multiprocess helpers
+
+
+def get_n_cores(n_cores=None, cpu_offset=1):
+    """ """
+    max_cpus = mp.cpu_count()
+    if n_cores is None:
+        return max_cpus - cpu_offset
+
+    return min(max_cpus, n_cores)
 
 # ----------------------------------------------------------------------------# 
 # --------------------                End                 --------------------# 
