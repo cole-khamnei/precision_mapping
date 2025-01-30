@@ -232,7 +232,7 @@ def get_arguments(test_args: list = None):
                         required=False, help="Verbosity")
     parser.add_argument('-s', "--seed", dest='seed', action="store", type=int, default=137,
                         required=False, help="Random seed")
-    parser.add_argument("--n-reps", dest='n_reps', action="store", type=int, default=1,
+    parser.add_argument("--n-reps", dest='n_reps', action="store", type=int, default=50,
                         required=False, help="Number of infomap repetitions")
     parser.add_argument("--sparsity", dest='sparsity', action="store", type=float, default=0.1,
                         required=False, help="FC Sparsity Percent")
