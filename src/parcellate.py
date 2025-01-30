@@ -1,6 +1,7 @@
+import os
 import numpy as np
+import scipy
 import multiprocess as mp
-# import multiprocessing as mp
 
 from infomap import Infomap
 
@@ -42,37 +43,49 @@ def batch_infomap_parcellation(matrices, save_paths, n_cores=None, **infomap_kwa
     n_cores = utils.get_n_cores(n_cores)
 
     arg_sets = zip(matrices, save_paths)
-
     single_parcel_func = lambda args: infomap_parcellation(args[0], args[1], silent=True, **infomap_kwargs)
-    # single_parcel_func = lambda args: args[1]
 
     with mp.Pool(n_cores) as p:
         results = p.map_async(single_parcel_func, arg_sets)
-        # results = p.map(single_parcel_func, save_paths)
-        # results = p.map_async(single_parcel_func, save_paths)
-        # results = p.map_async(lambda s: s ** 2, np.arange(10))
-        # results = results.get(timeout=1)
         results = results.get()
-    # print(list(results))
+
     return results
-    raise NotImplementedError
 
 
-# ----------------------------------------------------------------------------# 
-# --------------------               Tests                --------------------# 
-# ----------------------------------------------------------------------------# 
+def parcel_detection_single(corr_matrix, save_path, n_reps=1, overwrite=False, seed=42):
+    """ """
+    # TODO: figure out how to make this accepting of mujltiple / if I want accepting of multiple
 
+    if os.path.exists(save_path) and not overwrite:
+        print(f"{save_path} already exists and no '--overwrite' flag given. Skipping parcel detection.")
+        return
+    
+    sc = scipy.sparse.load_npz(corr_matrix)
+    partition = infomap_parcellation(sc, save_path=save_path, silent=True,
+                                     num_trials=n_reps, seed=seed)
+    return partition
+    
 
-def main():
-    """ tests """
-    mp.cpu_count()
+def parcel_detection(corr_matrix, save_path, n_cores=None, **parcellating_kwargs):
+    """ """
+    # TODO: figure out how to make this accepting of mujltiple / if I want accepting of multiple
 
-    print(utils.get_n_cores())
+    corr_matrices = corr_matrix if isinstance(corr_matrix, str) else corr_matrix
+    save_paths = save_path if isinstance(save_path, str) else save_path
+    assert len(corr_matrices) == len(save_paths)
 
+    
+    arg_sets = zip(corr_matrices, save_paths)
+    single_parcel_func = lambda args: parcel_detection_single(args[0], args[1], **parcellating_kwargs)
 
+    n_cores = utils.get_n_cores(n_cores)
+    with mp.Pool(n_cores) as p:
+        results = p.map_async(single_parcel_func, arg_sets)
+        results = results.get()
 
-if __name__ == '__main__':
-    main()
+    return []
+    
+    # print(f"Created infomap partition")
 
 # ----------------------------------------------------------------------------# 
 # --------------------                End                 --------------------# 

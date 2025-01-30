@@ -1,6 +1,6 @@
 import numpy as np
 import scipy
-# import nibabel as nb
+import nibabel as nb
 import multiprocess as mp
 # import multiprocessing as mp
 

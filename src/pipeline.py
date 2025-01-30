@@ -1,7 +1,7 @@
-from . import surface_mapping as sfm
-from . import network_assigment as na
-from . import plot
-from . import constants
+# from . import surface_mapping as sfm
+# from . import network_assigment as na
+# from . import plot
+# from . import constants
 
 
 # ----------------------------------------------------------------------------# 
@@ -9,7 +9,7 @@ from . import constants
 # ----------------------------------------------------------------------------# 
 
 
-def parallel_infomaps()
+def parallel_infomaps():
     raise NotImplementedError
 
 
