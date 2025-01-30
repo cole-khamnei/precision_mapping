@@ -87,6 +87,7 @@ def generate_correlation_batch(cifti_paths, save_paths, sparsity=0.1, max_trs=No
             if os.path.exists(save_path) and not overwrite:
                 print(f"{save_path} already exists and no '--overwrite' flag. Skipping correlation matrix creation.")
                 results.append(save_path)
+                current_voxel_data.cancel()
                 continue
 
             voxel_data = current_voxel_data.result()
@@ -98,6 +99,8 @@ def generate_correlation_batch(cifti_paths, save_paths, sparsity=0.1, max_trs=No
                                    mask_path=mask_path,
                                    block_size=block_size)
             results.append(save_path)
+
+        executor.shutdown(wait=False)
 
     return results
 
