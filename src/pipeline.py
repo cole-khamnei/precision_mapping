@@ -10,6 +10,7 @@
 
 
 def parallel_infomaps():
+    """ """
     raise NotImplementedError
 
 

@@ -64,7 +64,7 @@ def parcel_detection_single(corr_matrix, save_path, n_reps=1, overwrite=False, s
     partition = infomap_parcellation(sc, save_path=save_path, silent=True,
                                      num_trials=n_reps, seed=seed)
     return partition
-    
+
 
 def parcel_detection(corr_matrix, save_path, n_cores=None, **parcellating_kwargs):
     """ """

@@ -2,9 +2,9 @@ import numpy as np
 import scipy
 import nibabel as nb
 import multiprocess as mp
-# import multiprocessing as mp
 
 from tqdm.auto import tqdm
+from time import sleep
 
 
 # ----------------------------------------------------------------------------# 
@@ -34,10 +34,13 @@ def load_voxel_data(dtseries_paths):
         return np.vstack([load_voxel_data(path) for path in dtseries_paths])
 
     cifti = nb.load(dtseries_paths)
+    sleep(5)
     return cifti.get_fdata()
 
 
-# \section multiprocess helpers
+# ----------------------------------------------------------------------------# 
+# -----------------           Multiprocess Helpers           -----------------# 
+# ----------------------------------------------------------------------------# 
 
 
 def get_n_cores(n_cores=None, cpu_offset=1):
@@ -47,6 +50,21 @@ def get_n_cores(n_cores=None, cpu_offset=1):
         return max_cpus - cpu_offset
 
     return min(max_cpus, n_cores)
+
+
+# \section path helpers
+
+
+def create_path_tag(prefix, sparsity, mask, exclude_subcortex, max_trs=None, dist_threshold=10):
+    """ """
+    
+    subcortex_status = "_SC" if not exclude_subcortex else ""
+    mask_tag = f"_D{dist_threshold}" if mask else ""
+    max_trs_tag = f"_TR{max_trs:0.0f}" if max_trs else ""
+    tag = f"S{sparsity * 10:.0f}{mask_tag}{subcortex_status}{max_trs_tag}"
+    
+    return f"{prefix}_{tag}"
+
 
 # ----------------------------------------------------------------------------# 
 # --------------------                End                 --------------------# 
