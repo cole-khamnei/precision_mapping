@@ -13,6 +13,7 @@ from . import utils
 sys.path.insert(0, constants.PROJECT_PATH)
 import torch_math_tools as tmt
 
+from .utils import printer
 
 # ----------------------------------------------------------------------------# 
 # --------               Functional Connectivity Tools                --------# 
@@ -55,7 +56,7 @@ def generate_correlation_matrix(cifti_path, save_path, sparsity=0.1, max_trs=Non
 
 
     if os.path.exists(save_path) and not overwrite:
-        print(f"{save_path} already exists and no '--overwrite' flag. Skipping correlation matrix creation.")
+        printer(f"{save_path} already exists and no '--overwrite' flag. Skipping correlation matrix creation.")
         return save_path
     
     voxel_data = utils.load_voxel_data(cifti_path)
@@ -85,7 +86,7 @@ def generate_correlation_batch(cifti_paths, save_paths, sparsity=0.1, max_trs=No
                 future_voxel_data = executor.submit(utils.load_voxel_data, cifti_paths[i + 1])
 
             if os.path.exists(save_path) and not overwrite:
-                print(f"{save_path} already exists and no '--overwrite' flag. Skipping correlation matrix creation.")
+                printer(f"{save_path} already exists and no '--overwrite' flag. Skipping correlation matrix creation.")
                 results.append(save_path)
                 current_voxel_data.cancel()
                 continue

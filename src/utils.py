@@ -6,6 +6,26 @@ import multiprocess as mp
 from tqdm.auto import tqdm
 from time import sleep
 
+# \section random helpers
+
+class Printer:
+    def __init__(self, silent=False):
+        self.silent = silent
+
+    def __call__(self, *args):
+        """ """
+        if not self.silent:
+            print(*args)
+
+    def mute(self):
+        self.silent = True
+
+    def unmute(self):
+        self.silent = False
+
+
+printer = Printer(silent=False)
+
 
 # ----------------------------------------------------------------------------# 
 # --------------------             Np Helpers             --------------------# 
