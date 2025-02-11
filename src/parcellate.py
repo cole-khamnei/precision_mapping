@@ -1,11 +1,16 @@
 import os
+import gc
+
 import numpy as np
 import scipy
 import multiprocess as mp
 
 from infomap import Infomap
+from tqdm.auto import tqdm
 
 from . import utils
+
+from .utils import printer
 
 # ----------------------------------------------------------------------------# 
 # ----------------           Infomaps Parcellating            ----------------# 
@@ -19,7 +24,7 @@ def infomap_parcellation(matrix, save_path=None, num_trials=1, **kwargs):
     col_counts = np.array((matrix > 0).sum(axis=1)).ravel()
     vertex_edge_frac = np.mean((row_counts + col_counts) > 0) 
     if vertex_edge_frac <= 0.95:
-        print(f"WARNING: reduced number of vertex connections. {vertex_edge_frac}")
+        printer(f"WARNING: reduced number of vertex connections. {vertex_edge_frac}")
 
     infomap = Infomap(two_level=True, num_trials=num_trials, **kwargs)
     for r_i, c_i in zip(*matrix.nonzero()):
@@ -33,7 +38,7 @@ def infomap_parcellation(matrix, save_path=None, num_trials=1, **kwargs):
 
     if save_path:
         np.save(save_path, [index, values])
-        # print(f"infomap {save_path} done.")
+        # printer(f"infomap {save_path} done.")
     
     return index, values
 
@@ -57,12 +62,14 @@ def parcel_detection_single(corr_matrix, save_path, n_reps=1, overwrite=False, s
     # TODO: figure out how to make this accepting of mujltiple / if I want accepting of multiple
 
     if os.path.exists(save_path) and not overwrite:
-        print(f"{save_path} already exists and no '--overwrite' flag given. Skipping parcel detection.")
+        printer(f"{save_path} already exists and no '--overwrite' flag given. Skipping parcel detection.")
         return
     
+    print(corr_matrix)
     sc = scipy.sparse.load_npz(corr_matrix)
     partition = infomap_parcellation(sc, save_path=save_path, silent=True,
                                      num_trials=n_reps, seed=seed)
+    gc.collect()
     return partition
 
 
@@ -78,14 +85,16 @@ def parcel_detection(corr_matrix, save_path, n_cores=None, **parcellating_kwargs
     arg_sets = zip(corr_matrices, save_paths)
     single_parcel_func = lambda args: parcel_detection_single(args[0], args[1], **parcellating_kwargs)
 
+    desc = "Running infomap parcel detection"
     n_cores = utils.get_n_cores(n_cores)
     with mp.Pool(n_cores) as p:
-        results = p.map_async(single_parcel_func, arg_sets)
-        results = results.get()
+        results = []
+        for result in tqdm(p.imap(single_parcel_func, arg_sets), total=len(save_paths), desc=desc):
+            results.append(result)
 
-    return []
+    return results
     
-    # print(f"Created infomap partition")
+    # printer(f"Created infomap partition")
 
 # ----------------------------------------------------------------------------# 
 # --------------------                End                 --------------------# 

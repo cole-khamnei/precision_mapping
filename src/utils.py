@@ -1,3 +1,7 @@
+import shutil
+import gc
+import os
+
 import numpy as np
 import scipy
 import nibabel as nb
@@ -26,6 +30,30 @@ class Printer:
 
 printer = Printer(silent=False)
 
+
+def cache_tmp_path(path, use_cache=True, write_cache=True):
+    """ """
+    if not isinstance(path, str):
+        return [cache_tmp_path(path_i, use_cache=use_cache, write_cache=write_cache)
+                for path_i in tqdm(path, desc="Caching paths in ~/_tmp")]
+
+    if not use_cache:
+        return path
+
+    # TODO: builtin hash is non-deterministic, use hashlib or z-adler if want hashed option
+    # tmp_path = f"/tmp/cifti_H{hash(path)}.{path.split('.', maxsplit=1)[1]}"
+
+    tmp_path = "~/_tmp/" + path.split("/data/data", maxsplit=1)[1].lstrip("1234567/").replace("/", "--")
+    tmp_path = os.path.expanduser(tmp_path)
+
+    if not os.path.exists(tmp_path):
+        if write_cache:
+            shutil.copyfile(path, tmp_path)
+            gc.collect()
+        else:
+            tmp_path = path
+
+    return tmp_path
 
 # ----------------------------------------------------------------------------# 
 # --------------------             Np Helpers             --------------------# 
