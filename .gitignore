@@ -1,3 +1,6 @@
 *__pycache__*
 *.ipynb_checkpoints*
 *.pyc
+tests/inputs
+tests/outputs
+notebooks/scratch
