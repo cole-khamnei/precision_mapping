@@ -9,8 +9,7 @@ PRECISION_MAPPING_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_PATH = os.path.join(PRECISION_MAPPING_DIR, "../")
 
 sys.path.insert(0, PROJECT_PATH)
-import torch_math_tools as tmt
-
+import xmath_tools as xmt
 
 
 EC_DIR = "/data/data4/earlycort_7114"

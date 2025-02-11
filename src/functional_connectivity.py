@@ -11,7 +11,7 @@ from . import constants
 from . import utils
 
 sys.path.insert(0, constants.PROJECT_PATH)
-import torch_math_tools as tmt
+import xmath_tools as xmt
 
 from .utils import printer
 
@@ -35,7 +35,7 @@ def generate_voxel_FC(voxel_data, save_path=None, sparsity=0.1, exclude_index_pa
     # TODO: Fix masking related issues
     # TODO: add infomaps check, to insure that at least a certain percent of vertices have connections
     # mask = None
-    sc = tmt.SparseCorrelator.run(voxel_data[:, :], mask=mask, symmetric=True, exclude_index=exclude_index,
+    sc = xmt.SparseCorrelator.run(voxel_data[:, :], mask=mask, symmetric=True, exclude_index=exclude_index,
                                   sparsity_percent=sparsity, block_size=block_size, leave=leave)
     if save_path:
         scipy.sparse.save_npz(save_path, sc)
