@@ -55,6 +55,35 @@ def cache_tmp_path(path, use_cache=True, write_cache=True):
 
     return tmp_path
 
+
+def read_txt(txt_path: str) -> list:
+    """ """
+
+    with open(txt_path, "r") as file:
+        return file.read().strip().split()
+
+
+def resolve_str_txt_list(str_txt_list, file_ext=None):
+    """ """
+    assert isinstance(str_txt_list, str)
+
+    if str_txt_list.endswith(".txt"):
+        list_items = read_txt(str_txt_list)
+
+    else:
+        list_items = [str_txt_list]
+
+    if file_ext:
+        assert all(item.endswith(file_ext) for item in list_items)
+
+    return list_items
+
+
+def batch_str_format(str_list, **kwargs):
+    """ """
+    return [str_i.format(**kwargs) for str_i in str_list]
+
+
 # ----------------------------------------------------------------------------# 
 # --------------------             Np Helpers             --------------------# 
 # ----------------------------------------------------------------------------# 

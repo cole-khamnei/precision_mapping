@@ -6,7 +6,7 @@ import sys
 # ----------------------------------------------------------------------------# 
 
 PRECISION_MAPPING_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_PATH = os.path.join(PRECISION_MAPPING_DIR, "../")
+PROJECT_PATH = os.path.join(PRECISION_MAPPING_DIR, "../../")
 
 sys.path.insert(0, PROJECT_PATH)
 import xmath_tools as xmt

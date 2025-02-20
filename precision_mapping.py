@@ -231,10 +231,13 @@ def get_arguments(test_args: list = None):
                         help="Output file prefix e.g. 'path/to/dir/file_prefix'")
     parser.add_argument('-p', "--prefix", dest='prefix', action="store", type=str, required=False,
                         help="Output file prefix e.g. 'path/to/dir/file_prefix'")
+
     parser.add_argument('-v', "--verbose", dest='verbose', action="store", type=int, default=1,
                         required=False, help="Verbosity")
     parser.add_argument('-s', "--seed", dest='seed', action="store", type=int, default=137,
                         required=False, help="Random seed")
+
+
     parser.add_argument("--n-reps", dest='n_reps', action="store", type=int, default=50,
                         required=False, help="Number of infomap repetitions")
     parser.add_argument("--sparsity", dest='sparsity', action="store", type=float, default=0.1,
@@ -243,11 +246,15 @@ def get_arguments(test_args: list = None):
                         required=False, help="exclude subcortex")
     parser.add_argument("--mask", dest='mask', action="store_true", default=False,
                         required=False, help="mask")
+    parser.add_argument("--max-trs", dest='max_trs', action="store", type=int, default=None,
+                        required=False, help="Maximum TRs to use")
+
     parser.add_argument("--dry-run", dest='dry_run', action="store_true", default=False,
                         required=False, help="Runs a dry of the program, checking paths but not doing any anaysis.")
     parser.add_argument("--overwrite", dest='overwrite', action="store_true", default=False,
                         required=False, help="Over writes outputs.")
     #TODO: Identify problems with GLEW library or find way to check (causes seg faults though :/  )
+
     parser.add_argument("--no-plots", dest='no_plots', action="store_true", default=False,
                         required=False, help="Specifies to skip plotting in case VTK/GLEW lib is messed up.")
     parser.add_argument("-m", '--mode', choices=MODES, type=str, default="all",

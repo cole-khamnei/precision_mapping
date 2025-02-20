@@ -18,8 +18,8 @@ class TestPrecisionMapping(unittest.TestCase):
         args = pm.get_arguments(test_args=["-c", constants.EXAMPLE_DTSERIES, "-o tests/outputs"])
         # self.assertEqual(fmri_data[2][1], 1)
 
-    # def test_pm_main(self):
-    #     pm.main(test_args=["-c", constants.EXAMPLE_DTSERIES, "-o", "tests/outputs", "-p", "example", "--overwrite"])
+    def test_pm_main(self):
+        pm.main(test_args=["-c", constants.EXAMPLE_DTSERIES, "-o", "tests/outputs", "-p", "example", "--overwrite"])
         # pm.main(test_args=["-c", constants.EXAMPLE_DTSERIES, "-o tests/outputs", "--overwrite"])
 
     # def test_pm_correlator(self):
@@ -35,13 +35,13 @@ class TestPrecisionMapping(unittest.TestCase):
         #                        mask_path=mask_path,
         #                        block_size=5000)
 
-    def test_pm_infomap(self):
-        """ """
-        import scipy
-        sc_path = f"{file_dir_path}/outputs/example_voxel_FC_S1_D10_SC.npz"
-        sc = scipy.sparse.load_npz(sc_path)
+    # def test_pm_infomap(self):
+    #     """ """
+    #     import scipy
+    #     sc_path = f"{file_dir_path}/outputs/example_voxel_FC_S1_D10_SC.npz"
+    #     # sc = scipy.sparse.load_npz(sc_path)
 
-        pm.infomap_parallel(sc)
+        # pm.infomap_parallel(sc)
 
         # pm.infomap_parcellation(sc, save_path=f"{file_dir_path}/outputs/hole_test_S1.npy",
         #                         num_trials=1)
@@ -49,6 +49,3 @@ class TestPrecisionMapping(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
-
-def mode_selector()
