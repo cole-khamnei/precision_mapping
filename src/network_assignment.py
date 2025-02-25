@@ -15,11 +15,11 @@ from tqdm.auto import tqdm
 # -----------              Network Assignment Helpers              -----------# 
 # ----------------------------------------------------------------------------# 
 
+NETWORK_PRIORS = "/data/data7/network_control/projects/precision_mapping/resources/priors.mat"
 
-def load_priors():
+
+def load_priors(priors_path = NETWORK_PRIORS):
     """ """
-    priors_path = "/data/data7/network_control/projects/voxel_analysis/resources/priors.mat"
-
     priors = scipy.io.loadmat(priors_path)
     FC, spatial, network_labels, _ = priors["Priors"][0, 0]
     network_labels = np.array([lab[0][0] for lab in network_labels])
@@ -76,17 +76,17 @@ def get_network_assignment_labels(vertex_labels, vertex_data, network_labels, sp
     cluster_labels = np.sort(np.unique(remapped_vertex_labels))
     roi_index_set = remapped_vertex_labels.reshape(-1, 1) == cluster_labels
     
-    # roi_mean_signals = np.array([vertex_data[:, ri].mean(axis=1) for ri in roi_index_set.T]).T
-    # roi_mean_FCs = utils.np_corr(vertex_data, roi_mean_signals)
+    roi_mean_signals = np.array([vertex_data[:, ri].mean(axis=1) for ri in roi_index_set.T]).T
+    roi_mean_FCs = utils.np_corr(vertex_data, roi_mean_signals)
     # TODO: Readjust the FC connections to use the thresholded data (specifically sparse matrices)
-    # fc_corr = utils.np_corr(FC_priors.T, roi_mean_FCs)
-    # sp_corr = utils.np_corr(spatial_priors.T, roi_index_set * 1)
-    # sp_fc_corr = sp_corr * fc_corr
-    # sp_fc_index = np.argmax(sp_fc_corr, axis=0)
-
-    fc_corr = 1
+    fc_corr = utils.np_corr(FC_priors.T, roi_mean_FCs)
     sp_corr = utils.np_corr(spatial_priors.T, roi_index_set * 1)
-    sp_fc_index = np.argmax(sp_corr, axis=0)
+    sp_fc_corr = sp_corr * fc_corr
+    sp_fc_index = np.argmax(sp_fc_corr, axis=0)
+
+    # fc_corr = 1
+    # sp_corr = utils.np_corr(spatial_priors.T, roi_index_set * 1)
+    # sp_fc_index = np.argmax(sp_corr, axis=0)
 
     return sp_fc_index[remapped_vertex_labels], network_labels[sp_fc_index[remapped_vertex_labels]], sp_corr, fc_corr
 
@@ -100,9 +100,9 @@ def assign_networks(cifti_paths, partition_path, save_path, overwrite=False):
         return
 
     template_cifti = nb.load(cifti_paths[0])
-    # full_vertex_data = utils.load_voxel_data(cifti_paths)
-    # vertex_data = get_cortex_data(full_vertex_data, template_cifti)
-    vertex_data = None
+    full_vertex_data = utils.load_voxel_data(cifti_paths)
+    vertex_data = get_cortex_data(full_vertex_data, template_cifti)
+    # vertex_data = None
 
     partition = np.load(partition_path)
     vertex_labels = get_partition_cortex(partition, template_cifti)

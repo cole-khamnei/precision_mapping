@@ -31,10 +31,10 @@ class Printer:
 printer = Printer(silent=False)
 
 
-def cache_tmp_path(path, use_cache=True, write_cache=True):
+def cache_tmp_path(path, use_cache=True, write_cache=True, cache_dir="~/_tmp"):
     """ """
     if not isinstance(path, str):
-        return [cache_tmp_path(path_i, use_cache=use_cache, write_cache=write_cache)
+        return [cache_tmp_path(path_i, use_cache=use_cache, write_cache=write_cache, cache_dir=cache_dir)
                 for path_i in tqdm(path, desc="Caching paths in ~/_tmp")]
 
     if not use_cache:
@@ -43,7 +43,7 @@ def cache_tmp_path(path, use_cache=True, write_cache=True):
     # TODO: builtin hash is non-deterministic, use hashlib or z-adler if want hashed option
     # tmp_path = f"/tmp/cifti_H{hash(path)}.{path.split('.', maxsplit=1)[1]}"
 
-    tmp_path = "~/_tmp/" + path.split("/data/data", maxsplit=1)[1].lstrip("1234567/").replace("/", "--")
+    tmp_path = f"{cache_dir}/" + path.split("/data/data", maxsplit=1)[1].lstrip("1234567/").replace("/", "--")
     tmp_path = os.path.expanduser(tmp_path)
 
     if not os.path.exists(tmp_path):
@@ -105,14 +105,18 @@ def np_corr(x, y):
 # ----------------------------------------------------------------------------# 
 
 
-def load_voxel_data(dtseries_paths):
+def load_voxel_data(dtseries_paths, dtype="float32"):
     """ """
     if not isinstance(dtseries_paths, str):
         return np.vstack([load_voxel_data(path) for path in dtseries_paths])
 
+    assert (dtseries_paths.endswith(".npy") or dtseries_paths.endswith(".nii"))
+
+    if dtseries_paths.endswith(".npy"):
+        return np.load(dtseries_paths).astype(dtype)
+
     cifti = nb.load(dtseries_paths)
-    sleep(5)
-    return cifti.get_fdata()
+    return cifti.get_fdata(caching="unchanged", dtype=dtype)
 
 
 # ----------------------------------------------------------------------------# 

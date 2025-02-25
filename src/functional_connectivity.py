@@ -44,7 +44,7 @@ def generate_voxel_FC(voxel_data, save_path=None, sparsity=0.1, exclude_index_pa
 
 def generate_correlation_matrix(cifti_path, save_path, sparsity=0.1, max_trs=None,
                                 exclude_index_path=None, mask_path=None,
-                                block_size=5000, overwrite=False, leave=False):
+                                block_size=5000, overwrite=False, leave=False, **SC_kwargs):
     """ """
 
     if isinstance(cifti_path, str) and isinstance(save_path, str):
@@ -56,7 +56,7 @@ def generate_correlation_matrix(cifti_path, save_path, sparsity=0.1, max_trs=Non
 
         return generate_correlation_batch(cifti_path, save_path, sparsity=sparsity, max_trs=max_trs,
                                            exclude_index_path=exclude_index_path, mask_path=mask_path,
-                                           block_size=block_size, overwrite=overwrite, leave=leave)
+                                           block_size=block_size, overwrite=overwrite, leave=leave, **SC_kwargs)
 
 
     if os.path.exists(save_path) and not overwrite:
@@ -71,15 +71,17 @@ def generate_correlation_matrix(cifti_path, save_path, sparsity=0.1, max_trs=Non
     sc = generate_voxel_FC(voxel_data, save_path=save_path, sparsity=sparsity,
                            exclude_index_path=exclude_index_path,
                            mask_path=mask_path,
-                           block_size=block_size, leave=leave)
+                           block_size=block_size, leave=leave, **SC_kwargs)
 
     return save_path
 
 
 def generate_correlation_batch(cifti_paths, save_paths, sparsity=0.1, max_trs=None,
                                 exclude_index_path=None, mask_path=None,
-                                block_size=5000, overwrite=False, leave=False):
+                                block_size=5000, overwrite=False, leave=False, **SC_kwargs):
     """ """
+    assert all(os.path.exists(os.path.dirname(path)) for path in save_paths)
+
     results = []
     pbar = tqdm(total=len(save_paths), desc="Generating vertex-level FC")
 
@@ -109,7 +111,7 @@ def generate_correlation_batch(cifti_paths, save_paths, sparsity=0.1, max_trs=No
             sc = generate_voxel_FC(voxel_data, save_path=None, sparsity=sparsity,
                                    exclude_index_path=exclude_index_path,
                                    mask_path=mask_path,
-                                   block_size=block_size, leave=leave)
+                                   block_size=block_size, leave=leave, **SC_kwargs)
 
             # Asynchronously save files (takes ~3 seconds on NAS)
             executor.submit(scipy.sparse.save_npz, save_path, sc)
