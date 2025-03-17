@@ -31,11 +31,12 @@ class Printer:
 printer = Printer(silent=False)
 
 
-def cache_tmp_path(path, use_cache=True, write_cache=True, cache_dir="~/_tmp"):
+def cache_tmp_path(path, use_cache=True, write_cache=True, cache_dir="~/_tmp", pbar=False, **pb_kwargs):
     """ """
     if not isinstance(path, str):
+        iter_ = tqdm(path, desc=f"Caching paths in {cache_dir}", **pb_kwargs) if pbar else path
         return [cache_tmp_path(path_i, use_cache=use_cache, write_cache=write_cache, cache_dir=cache_dir)
-                for path_i in tqdm(path, desc="Caching paths in ~/_tmp")]
+                for path_i in iter_]
 
     if not use_cache:
         return path
