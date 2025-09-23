@@ -250,11 +250,11 @@ def get_arguments(test_args: list = None):
                         required=False, help="Maximum TRs to use")
 
     parser.add_argument("--dry-run", dest='dry_run', action="store_true", default=False,
-                        required=False, help="Runs a dry of the program, checking paths but not doing any anaysis.")
+                        required=False, help="Runs a dry of the program, checking paths but not doing any analysis.")
     parser.add_argument("--overwrite", dest='overwrite', action="store_true", default=False,
                         required=False, help="Over writes outputs.")
-    #TODO: Identify problems with GLEW library or find way to check (causes seg faults though :/  )
 
+    #TODO: Identify problems with GLEW library or find way to check (causes seg faults though :/  )
     parser.add_argument("--no-plots", dest='no_plots', action="store_true", default=False,
                         required=False, help="Specifies to skip plotting in case VTK/GLEW lib is messed up.")
     parser.add_argument("-m", '--mode', choices=MODES, type=str, default="all",
