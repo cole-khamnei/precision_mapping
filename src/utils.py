@@ -96,8 +96,16 @@ def np_corr(x, y):
     x_demeaned = x - x.mean(axis=1, keepdims=True)
     y_demeaned = y - y.mean(axis=1, keepdims=True)
 
-    x_norm = x_demeaned / np.sqrt(np.sum(x_demeaned ** 2, axis=1, keepdims=True))
-    y_norm = y_demeaned / np.sqrt(np.sum(y_demeaned ** 2, axis=1, keepdims=True))
+    sigma_x = np.sqrt(np.sum(x_demeaned ** 2, axis=1, keepdims=True))
+    sigma_y = np.sqrt(np.sum(y_demeaned ** 2, axis=1, keepdims=True))
+
+    sigma_x = (sigma_x == 0) * 1 + sigma_x
+    sigma_y = (sigma_y == 0) * 1 + sigma_y
+    assert np.all(sigma_x != 0)
+    assert np.all(sigma_y != 0)
+
+    x_norm = x_demeaned / sigma_x
+    y_norm = y_demeaned / sigma_y
     return x_norm @ y_norm.T
 
 

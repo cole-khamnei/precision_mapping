@@ -57,7 +57,8 @@ def batch_infomap_parcellation(matrices, save_paths, n_cores=None, **infomap_kwa
     return results
 
 
-def parcel_detection_single(corr_matrix, save_path, n_reps=1, overwrite=False, seed=42):
+def parcel_detection_single(corr_matrix, save_path, n_reps=1, silent=True,
+                            overwrite=False, seed=42, **kwargs):
     """ """
     # TODO: figure out how to make this accepting of mujltiple / if I want accepting of multiple
 
@@ -67,13 +68,13 @@ def parcel_detection_single(corr_matrix, save_path, n_reps=1, overwrite=False, s
     
     print(corr_matrix)
     sc = scipy.sparse.load_npz(corr_matrix)
-    partition = infomap_parcellation(sc, save_path=save_path, silent=True,
-                                     num_trials=n_reps, seed=seed)
+    partition = infomap_parcellation(sc, save_path=save_path, silent=silent,
+                                     num_trials=n_reps, seed=seed, **kwargs)
     gc.collect()
     return partition
 
 
-def parcel_detection(corr_matrix, save_path, n_cores=None, **parcellating_kwargs):
+def parcel_detection(corr_matrix, save_path, n_cores=None, silent=True, **parcellating_kwargs):
     """ """
     # TODO: figure out how to make this accepting of mujltiple / if I want accepting of multiple
 
@@ -83,7 +84,8 @@ def parcel_detection(corr_matrix, save_path, n_cores=None, **parcellating_kwargs
 
     
     arg_sets = zip(corr_matrices, save_paths)
-    single_parcel_func = lambda args: parcel_detection_single(args[0], args[1], **parcellating_kwargs)
+    single_parcel_func = lambda args: parcel_detection_single(args[0], args[1],
+                                                              silent=silent, **parcellating_kwargs)
 
     desc = "Running infomap parcel detection"
     n_cores = utils.get_n_cores(n_cores)

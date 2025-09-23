@@ -78,11 +78,20 @@ def get_network_assignment_labels(vertex_labels, vertex_data, network_labels, sp
     
     roi_mean_signals = np.array([vertex_data[:, ri].mean(axis=1) for ri in roi_index_set.T]).T
     roi_mean_FCs = utils.np_corr(vertex_data, roi_mean_signals)
+
     # TODO: Readjust the FC connections to use the thresholded data (specifically sparse matrices)
     fc_corr = utils.np_corr(FC_priors.T, roi_mean_FCs)
     sp_corr = utils.np_corr(spatial_priors.T, roi_index_set * 1)
+
+    print(np.isnan(roi_mean_signals).mean())
+    print(np.isnan(FC_priors).mean())
+    print(np.isnan(roi_mean_FCs).mean())
+
+    assert not np.isnan(fc_corr).any()
+
     sp_fc_corr = sp_corr * fc_corr
     sp_fc_index = np.argmax(sp_fc_corr, axis=0)
+    # sp_fc_index = np.argmax(sp_corr, axis=0)
 
     # fc_corr = 1
     # sp_corr = utils.np_corr(spatial_priors.T, roi_index_set * 1)
