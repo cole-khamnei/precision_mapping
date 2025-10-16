@@ -10,7 +10,10 @@ import multiprocess as mp
 from tqdm.auto import tqdm
 from time import sleep
 
-# \section random helpers
+# ----------------------------------------------------------------------------# 
+# --------------------           Random Helpers           --------------------# 
+# ----------------------------------------------------------------------------# 
+
 
 class Printer:
     def __init__(self, silent=False):
@@ -142,7 +145,9 @@ def get_n_cores(n_cores=None, cpu_offset=1):
     return min(max_cpus, n_cores)
 
 
-# \section path helpers
+# ----------------------------------------------------------------------------# 
+# --------------------            Path Helpers            --------------------# 
+# ----------------------------------------------------------------------------# 
 
 
 def create_path_tag(prefix, sparsity, mask, exclude_subcortex, max_trs=None, dist_threshold=10):

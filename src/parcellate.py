@@ -2,15 +2,13 @@ import os
 import gc
 
 import numpy as np
-import scipy
 import multiprocess as mp
+import scipy
 
 from infomap import Infomap
 from tqdm.auto import tqdm
 
 from . import utils
-
-from .utils import printer
 
 # ----------------------------------------------------------------------------# 
 # ----------------           Infomaps Parcellating            ----------------# 
@@ -24,7 +22,7 @@ def infomap_parcellation(matrix, save_path=None, num_trials=1, **kwargs):
     col_counts = np.array((matrix > 0).sum(axis=1)).ravel()
     vertex_edge_frac = np.mean((row_counts + col_counts) > 0) 
     if vertex_edge_frac <= 0.95:
-        printer(f"WARNING: reduced number of vertex connections. {vertex_edge_frac}")
+        utils.printer(f"WARNING: reduced number of vertex connections. {vertex_edge_frac}")
 
     infomap = Infomap(two_level=True, num_trials=num_trials, **kwargs)
     for r_i, c_i in zip(*matrix.nonzero()):
@@ -38,7 +36,6 @@ def infomap_parcellation(matrix, save_path=None, num_trials=1, **kwargs):
 
     if save_path:
         np.save(save_path, [index, values])
-        # printer(f"infomap {save_path} done.")
     
     return index, values
 
@@ -63,7 +60,7 @@ def parcel_detection_single(corr_matrix, save_path, n_reps=1, silent=True,
     # TODO: figure out how to make this accepting of mujltiple / if I want accepting of multiple
 
     if os.path.exists(save_path) and not overwrite:
-        printer(f"{save_path} already exists and no '--overwrite' flag given. Skipping parcel detection.")
+        utils.printer(f"{save_path} already exists and no '--overwrite' flag given. Skipping parcel detection.")
         return
     
     print(corr_matrix)
@@ -96,7 +93,6 @@ def parcel_detection(corr_matrix, save_path, n_cores=None, silent=True, **parcel
 
     return results
     
-    # printer(f"Created infomap partition")
 
 # ----------------------------------------------------------------------------# 
 # --------------------                End                 --------------------# 

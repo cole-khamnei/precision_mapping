@@ -115,6 +115,7 @@ def to_np(array):
 # -------------------          Backend Math Tools          -------------------# 
 # ----------------------------------------------------------------------------# 
 
+
 def backend_triu_indices(backend, shape, offset=0):
     """ """
     if check_backend(backend, "torch"):
@@ -146,7 +147,10 @@ def backend_corr(backend, x, y):
     return x_norm @ y_norm.T
 
 
-# \section MPS Torch Safe Actions
+# ----------------------------------------------------------------------------# 
+# ---------------            MPS Torch Safe Actions            ---------------# 
+# ----------------------------------------------------------------------------# 
+
 
 def needs_MPS_safety(backend, device_info):
     """ """

@@ -5,20 +5,17 @@ import numpy as np
 import nibabel as nb
 import scipy
 
+from tqdm.auto import tqdm
 
 from . import utils
-from .utils import printer
-
-from tqdm.auto import tqdm
+from . import constatnts
 
 # ----------------------------------------------------------------------------# 
 # -----------              Network Assignment Helpers              -----------# 
 # ----------------------------------------------------------------------------# 
 
-NETWORK_PRIORS = "/data/data7/network_control/projects/precision_mapping/resources/priors.mat"
 
-
-def load_priors(priors_path = NETWORK_PRIORS):
+def load_priors(priors_path = constants.NETWORK_PRIORS):
     """ """
     priors = scipy.io.loadmat(priors_path)
     FC, spatial, network_labels, _ = priors["Priors"][0, 0]
@@ -57,8 +54,6 @@ def process_partition(partition, min_voxels=0, filter_subcortex=True):
 def get_partition_cortex(partition, cifti):
     """ """
     vertex_labels, partition = process_partition(partition)
-    # vertex_labels = np.full(np.max(partition[0]) + 1, fill_value=np.nan)
-    # vertex_labels[partition[0]] = partition[1]
     return get_cortex_data(vertex_labels.reshape(1, -1), cifti)[0]
 
 
@@ -83,19 +78,10 @@ def get_network_assignment_labels(vertex_labels, vertex_data, network_labels, sp
     fc_corr = utils.np_corr(FC_priors.T, roi_mean_FCs)
     sp_corr = utils.np_corr(spatial_priors.T, roi_index_set * 1)
 
-    print(np.isnan(roi_mean_signals).mean())
-    print(np.isnan(FC_priors).mean())
-    print(np.isnan(roi_mean_FCs).mean())
-
     assert not np.isnan(fc_corr).any()
 
     sp_fc_corr = sp_corr * fc_corr
     sp_fc_index = np.argmax(sp_fc_corr, axis=0)
-    # sp_fc_index = np.argmax(sp_corr, axis=0)
-
-    # fc_corr = 1
-    # sp_corr = utils.np_corr(spatial_priors.T, roi_index_set * 1)
-    # sp_fc_index = np.argmax(sp_corr, axis=0)
 
     return sp_fc_index[remapped_vertex_labels], network_labels[sp_fc_index[remapped_vertex_labels]], sp_corr, fc_corr
 
@@ -105,13 +91,12 @@ def assign_networks(cifti_paths, partition_path, save_path, overwrite=False):
     cifti_paths = [cifti_paths] if isinstance(cifti_paths, str) else cifti_paths
 
     if os.path.exists(save_path) and not overwrite:
-        printer(f"{save_path} already exists and no '--overwrite' flag given. Skipping network assignment.")
+        utils.printer(f"{save_path} already exists and no '--overwrite' flag given. Skipping network assignment.")
         return
 
     template_cifti = nb.load(cifti_paths[0])
     full_vertex_data = utils.load_voxel_data(cifti_paths)
     vertex_data = get_cortex_data(full_vertex_data, template_cifti)
-    # vertex_data = None
 
     partition = np.load(partition_path)
     vertex_labels = get_partition_cortex(partition, template_cifti)
@@ -123,7 +108,7 @@ def assign_networks(cifti_paths, partition_path, save_path, overwrite=False):
         np.save(save_path, [vn, vns])
         np.save(save_path.replace(".npy", "_corrs.npy"), [sp_corr, fc_corr])
     
-    printer("Created network assignments.")
+    utils.printer("Created network assignments.")
     return vn, vns, sp_corr, fc_corr
 
 
