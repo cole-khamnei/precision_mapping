@@ -9,17 +9,7 @@ from tqdm.auto import tqdm
 
 from . import constants
 from . import utils
-
-# sys.path.insert(0, constants.PROJECT_PATH)
-# import xmath_tools as xmt
-
-from .utils import printer
-
 from .sparse_correlator import SparseCorrelator
-
-import gc
-import time
-
 
 
 # ----------------------------------------------------------------------------# 
@@ -35,7 +25,7 @@ def generate_voxel_FC(voxel_data, save_path=None, sparsity=0.1, exclude_index_pa
 
     # TODO: Fix masking related issues
     # TODO: add infomaps check, to insure that at least a certain percent of vertices have connections
-    # mask = None
+
     sc = SparseCorrelator.run(voxel_data[:, :], mask=mask, symmetric=True, exclude_index=exclude_index,
                                   sparsity_percent=sparsity, block_size=block_size, leave=leave, **SC_kwargs)
     if save_path:
@@ -62,7 +52,7 @@ def generate_correlation_matrix(cifti_path, save_path, sparsity=0.1, max_trs=Non
 
 
     if os.path.exists(save_path) and not overwrite:
-        printer(f"{save_path} already exists and no '--overwrite' flag. Skipping correlation matrix creation.")
+        utils.printer(f"{save_path} already exists and no '--overwrite' flag. Skipping correlation matrix creation.")
         return save_path
     
     voxel_data = utils.load_voxel_data(cifti_path)
@@ -105,7 +95,7 @@ def generate_correlation_batch(cifti_paths, save_paths, sparsity=0.1, max_trs=No
                 future_voxel_data = executor.submit(utils.load_voxel_data, cifti_paths[load_indices[j + 1]])
 
             if os.path.exists(save_path) and not overwrite:
-                printer(f"{save_path} already exists and no '--overwrite' flag. Skipping correlation matrix creation.")
+                utils.printer(f"{save_path} already exists and no '--overwrite' flag. Skipping correlation matrix creation.")
                 results.append(save_path)
                 continue
 
@@ -125,10 +115,6 @@ def generate_correlation_batch(cifti_paths, save_paths, sparsity=0.1, max_trs=No
         pbar.close()
 
     return results
-
-
-# \section FC analysis
-
 
 
 # ----------------------------------------------------------------------------# 

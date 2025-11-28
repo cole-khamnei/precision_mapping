@@ -9,3 +9,15 @@ PRECISION_MAPPING_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 EXAMPLE_DTSERIES = os.path.join(PRECISION_MAPPING_DIR, "tests", "example.dtseries.nii")
+
+
+# ----------------------------------------------------------------------------# 
+# --------------------           Resource Paths           --------------------# 
+# ----------------------------------------------------------------------------# 
+
+NETWORK_PRIORS = os.path.join(PRECISION_MAPPING_DIR, "resources", "network_FC_and_spatial_priors.mat")
+
+
+# ----------------------------------------------------------------------------# 
+# --------------------                End                 --------------------# 
+# ----------------------------------------------------------------------------#
