@@ -114,6 +114,9 @@ def assign_networks(cifti_paths, partition_path, save_path, overwrite=False):
 
 def assign_networks_batch(cifti_paths, partition_paths, save_paths, n_cores=None, overwrite=False):
     """ """
+    cifti_paths = utils.list_wrap(cifti_paths, str)
+    partition_paths = utils.list_wrap(partition_paths, str)
+    save_paths = utils.list_wrap(save_paths, str)
 
     assert len(partition_paths) == len(save_paths)
     assert len(cifti_paths) == len(save_paths)
@@ -121,10 +124,8 @@ def assign_networks_batch(cifti_paths, partition_paths, save_paths, n_cores=None
     arg_sets = zip(cifti_paths, partition_paths, save_paths)
     single_assign_func = lambda args: assign_networks(*args, overwrite=overwrite)
 
-    desc = "Assigning networks"
-
     results = []
-    pbar = tqdm(total=len(save_paths))
+    pbar = tqdm(total=len(save_paths), desc="Assigning parcellation networks", unit="cifti")
     for args in arg_sets:
         result = single_assign_func(args)
         pbar.update(1)

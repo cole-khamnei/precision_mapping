@@ -15,6 +15,11 @@ from time import sleep
 # ----------------------------------------------------------------------------# 
 
 
+def list_wrap(item, *dtypes):
+    """ """
+    return [item] if isinstance(item, dtypes) else item
+
+
 class Printer:
     def __init__(self, silent=False):
         self.silent = silent
@@ -131,6 +136,14 @@ def load_voxel_data(dtseries_paths, dtype="float32"):
     return cifti.get_fdata(caching="unchanged", dtype=dtype)
 
 
+def get_template_cifti(template_cifti):
+    """ """
+    if isinstance(template_cifti, str):
+        template_cifti = nb.load(template_cifti)
+
+    return template_cifti
+
+
 # ----------------------------------------------------------------------------# 
 # -----------------           Multiprocess Helpers           -----------------# 
 # ----------------------------------------------------------------------------# 
@@ -150,6 +163,10 @@ def get_n_cores(n_cores=None, cpu_offset=1):
 # ----------------------------------------------------------------------------# 
 
 
+def assert_exists(path):
+    assert os.path.exists(path), f"'{path}' does not exist."
+
+
 def create_path_tag(prefix, sparsity, mask, exclude_subcortex, max_trs=None, dist_threshold=10):
     """ """
     
@@ -159,6 +176,35 @@ def create_path_tag(prefix, sparsity, mask, exclude_subcortex, max_trs=None, dis
     tag = f"S{sparsity * 10:.0f}{mask_tag}{subcortex_status}{max_trs_tag}"
     
     return f"{prefix}_{tag}"
+
+
+def create_pm_paths(subject_ids, sample_labels, precision_maps_out_dir):
+    """ """
+
+    assert_exists(precision_maps_out_dir)
+    subject_ids = list_wrap(subject_ids, str)
+    sample_labels = list_wrap(sample_labels, str)
+
+    vertex_fc_paths, parcel_partition_paths, network_partition_paths = [], [], []
+    parcel_dlabel_paths, network_dlabel_paths, plot_save_paths = [], [], []
+
+    for subject_id, sample_label in zip(subject_ids, sample_labels):
+        subject_pm_dir = os.path.join(precision_maps_out_dir, subject_id)
+        if not os.path.exists(subject_pm_dir):
+            os.mkdir(subject_pm_dir)
+
+        subject_generic_file_name = f"{subject_pm_dir}/{sample_label}_{{file_ending}}"
+        
+        vertex_fc_paths.append(subject_generic_file_name.format(file_ending="vertex_FC.npz"))
+        parcel_partition_paths.append(subject_generic_file_name.format(file_ending="parcel_partition.npy"))
+        network_partition_paths.append(subject_generic_file_name.format(file_ending="network_partition.npy"))
+        parcel_dlabel_paths.append(subject_generic_file_name.format(file_ending="parcels.dlabel.nii"))
+
+        network_dlabel_paths.append(subject_generic_file_name.format(file_ending="networks.dlabel.nii"))
+        plot_save_paths.append(subject_generic_file_name.format(file_ending="parcellation_plot.png"))
+
+    return (vertex_fc_paths, parcel_partition_paths, network_partition_paths,
+            parcel_dlabel_paths, network_dlabel_paths, plot_save_paths)
 
 
 # ----------------------------------------------------------------------------# 

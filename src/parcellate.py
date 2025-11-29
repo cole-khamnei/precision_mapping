@@ -75,8 +75,12 @@ def parcel_detection(corr_matrix, save_path, n_cores=None, silent=True, **parcel
     """ """
     # TODO: figure out how to make this accepting of mujltiple / if I want accepting of multiple
 
-    corr_matrices = corr_matrix if isinstance(corr_matrix, str) else corr_matrix
-    save_paths = save_path if isinstance(save_path, str) else save_path
+    # corr_matrices = [corr_matrix] if isinstance(corr_matrix, str) else corr_matrix
+    # save_paths = [save_path] if isinstance(save_path, str) else save_path
+
+    corr_matrices = utils.list_wrap(corr_matrix, str)
+    save_paths = utils.list_wrap(save_path, str)
+
     assert len(corr_matrices) == len(save_paths)
 
     

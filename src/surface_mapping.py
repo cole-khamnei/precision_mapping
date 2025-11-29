@@ -8,11 +8,15 @@ import numpy as np
 import nibabel as nb
 import surfplot as sfp
 
+from . import constants
+
 # ----------------------------------------------------------------------------# 
 # --------------------             Constants              --------------------# 
 # ----------------------------------------------------------------------------# 
 
-SURFACES_DIR_PATH = "/System/Volumes/Data/data/data7/network_control/projects/network_control/resources/surfaces"
+# SURFACES_DIR_PATH = "/System/Volumes/Data/data/data7/network_control/projects/network_control/resources/surfaces"
+SURFACES_DIR_PATH = f"{constants.RESOURCES_DIR}/surfaces"
+# TODO: move surfaces into resources dir
 
 SURFACE_PATHS = glob.glob(os.path.join(SURFACES_DIR_PATH, "ec_con*.L.*"))
 SURFACE_PATHS = {spath.split(".")[2]: (spath, spath.replace(".L.", ".R.")) for spath in SURFACE_PATHS}
