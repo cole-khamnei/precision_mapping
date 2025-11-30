@@ -86,7 +86,7 @@ def get_network_assignment_labels(vertex_labels, vertex_data, network_labels, sp
     return sp_fc_index[remapped_vertex_labels], network_labels[sp_fc_index[remapped_vertex_labels]], sp_corr, fc_corr
 
 
-def assign_networks(cifti_paths, partition_path, save_path, overwrite=False):
+def assign_networks(cifti_paths, partition_path, save_path, censor_file=None, overwrite=False):
     """ """
     cifti_paths = [cifti_paths] if isinstance(cifti_paths, str) else cifti_paths
 
@@ -95,7 +95,7 @@ def assign_networks(cifti_paths, partition_path, save_path, overwrite=False):
         return
 
     template_cifti = nb.load(cifti_paths[0])
-    full_vertex_data = utils.load_voxel_data(cifti_paths)
+    full_vertex_data = utils.load_voxel_data(cifti_paths, censor_file=censor_file)
     vertex_data = get_cortex_data(full_vertex_data, template_cifti)
 
     partition = np.load(partition_path)
@@ -112,16 +112,17 @@ def assign_networks(cifti_paths, partition_path, save_path, overwrite=False):
     return vn, vns, sp_corr, fc_corr
 
 
-def assign_networks_batch(cifti_paths, partition_paths, save_paths, n_cores=None, overwrite=False):
+def assign_networks_batch(cifti_paths, partition_paths, save_paths, censor_files=None, n_cores=None, overwrite=False):
     """ """
     cifti_paths = utils.list_wrap(cifti_paths, str)
     partition_paths = utils.list_wrap(partition_paths, str)
     save_paths = utils.list_wrap(save_paths, str)
+    censor_files = None if censor_files is None else utils.list_wrap(censor_files, str)
 
     assert len(partition_paths) == len(save_paths)
     assert len(cifti_paths) == len(save_paths)
 
-    arg_sets = zip(cifti_paths, partition_paths, save_paths)
+    arg_sets = zip(cifti_paths, partition_paths, save_paths, censor_files)
     single_assign_func = lambda args: assign_networks(*args, overwrite=overwrite)
 
     results = []

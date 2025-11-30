@@ -121,19 +121,34 @@ def np_corr(x, y):
 # --------------------           Cifti Helpers            --------------------# 
 # ----------------------------------------------------------------------------# 
 
-
-def load_voxel_data(dtseries_paths, dtype="float32"):
+def read_censor_file(censor_file):
     """ """
+    with open(censor_file, 'r') as file:
+        censor_data = np.array(file.read().strip().split()).astype(int) == 1
+
+    return censor_data
+
+
+def load_voxel_data(dtseries_paths, censor_file=None, dtype="float32"):
+    """ """
+
     if not isinstance(dtseries_paths, str):
+        # TODO: pretty sure this legacy to concatenate - check and remove
         return np.vstack([load_voxel_data(path) for path in dtseries_paths])
 
     assert (dtseries_paths.endswith(".npy") or dtseries_paths.endswith(".nii"))
 
     if dtseries_paths.endswith(".npy"):
-        return np.load(dtseries_paths).astype(dtype)
+        voxel_data = np.load(dtseries_paths).astype(dtype)
+    else:
+        cifti = nb.load(dtseries_paths)
+        voxel_data = cifti.get_fdata(caching="unchanged", dtype=dtype)
 
-    cifti = nb.load(dtseries_paths)
-    return cifti.get_fdata(caching="unchanged", dtype=dtype)
+    if censor_file is not None:
+        dat_censor_indices = read_censor_file(censor_file)
+        voxel_data = voxel_data[~dat_censor_indices]
+
+    return voxel_data
 
 
 def get_template_cifti(template_cifti):

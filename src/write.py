@@ -58,11 +58,10 @@ def write_dlabel_precision_map(precision_map_values, save_path, label="", **kwar
     sfm.write_labels_to_dlabel(precision_map_labels, save_path, label_name=label, **kwargs)
 
 
-def write_parcel_dlabel(dtseries_path, parcel_partition_path, parcel_dlabel_path,
-                        template_cifti, cmap=None):
+def write_parcel_dlabel(parcel_partition_path, parcel_dlabel_path, template_cifti, cmap=None):
     """ """
     # list of paths version
-    args = [dtseries_path, parcel_partition_path, parcel_dlabel_path]
+    args = [parcel_partition_path, parcel_dlabel_path]
     if check_multiple_args(args, main_dtype=str):
         np.vectorize(write_parcel_dlabel)(*args, template_cifti=template_cifti, cmap=cmap)
         return
@@ -74,11 +73,10 @@ def write_parcel_dlabel(dtseries_path, parcel_partition_path, parcel_dlabel_path
     write_dlabel_precision_map(parcel_values_int, parcel_dlabel_path, cmap=cmap)
 
 
-def write_network_dlabel(dtseries_path, network_partition_path, network_dlabel_path,
-                         template_cifti, cmap=constants.NETWORK_CMAP):
+def write_network_dlabel(network_partition_path, network_dlabel_path, template_cifti, cmap=constants.NETWORK_CMAP):
     """ """
     # list of paths version
-    args = [dtseries_path, network_partition_path, network_dlabel_path]
+    args = [network_partition_path, network_dlabel_path]
     if check_multiple_args(args, main_dtype=str):
         np.vectorize(write_network_dlabel)(*args, template_cifti=template_cifti, cmap=cmap)
         return

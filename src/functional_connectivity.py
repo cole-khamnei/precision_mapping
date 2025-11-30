@@ -34,7 +34,7 @@ def generate_voxel_FC(voxel_data, save_path=None, sparsity=0.1, exclude_index_pa
     return sc
 
 
-def generate_correlation_matrix(cifti_path, save_path, sparsity=0.1, max_trs=None,
+def generate_correlation_matrix(cifti_path, save_path, censor_file=None, sparsity=0.1, max_trs=None,
                                 exclude_index_path=None, mask_path=None,
                                 block_size=5000, overwrite=False, leave=False, **SC_kwargs):
     """ """
@@ -46,7 +46,7 @@ def generate_correlation_matrix(cifti_path, save_path, sparsity=0.1, max_trs=Non
     else:
         assert len(cifti_path) == len(save_path), f"Path variables have diff lens: {len(cifti_path)}, {len(save_path)}"
 
-        return generate_correlation_batch(cifti_path, save_path, sparsity=sparsity, max_trs=max_trs,
+        return generate_correlation_batch(cifti_path, save_path, censor_files=censor_file, sparsity=sparsity, max_trs=max_trs,
                                            exclude_index_path=exclude_index_path, mask_path=mask_path,
                                            block_size=block_size, overwrite=overwrite, leave=leave, **SC_kwargs)
 
@@ -55,7 +55,7 @@ def generate_correlation_matrix(cifti_path, save_path, sparsity=0.1, max_trs=Non
         utils.printer(f"{save_path} already exists and no '--overwrite' flag. Skipping correlation matrix creation.")
         return save_path
     
-    voxel_data = utils.load_voxel_data(cifti_path)
+    voxel_data = utils.load_voxel_data(cifti_path, censor_file=censor_file)
 
     if max_trs:
         voxel_data = voxel_data[:max_trs]
@@ -68,10 +68,10 @@ def generate_correlation_matrix(cifti_path, save_path, sparsity=0.1, max_trs=Non
     return save_path
 
 
-def generate_correlation_batch(cifti_paths, save_paths, sparsity=0.1, max_trs=None,
+def generate_correlation_batch(cifti_paths, save_paths, censor_files=None, sparsity=0.1, max_trs=None,
                                 exclude_index_path=None, mask_path=None,
                                 block_size=5000, overwrite=False, leave=False, **SC_kwargs):
-    """ """
+    """ too optimized lol, simpler and slower is often better -.-"""
     assert all(os.path.exists(os.path.dirname(path)) for path in save_paths)
 
     results = []
@@ -85,14 +85,20 @@ def generate_correlation_batch(cifti_paths, save_paths, sparsity=0.1, max_trs=No
         pbar.close()
         return written_save_paths
 
+    censor_files = [None] * len(cifti_paths) if None else censor_files
+
     with ThreadPoolExecutor(max_workers=3) as executor:
 
-        future_voxel_data = executor.submit(utils.load_voxel_data, cifti_paths[load_indices[0]])
+        future_voxel_data = executor.submit(utils.load_voxel_data,
+                                            cifti_paths[load_indices[0]],
+                                            censor_files[load_indices[0]])
         for j, load_index in enumerate(load_indices):
             save_path = save_paths[load_index]
             voxel_data = future_voxel_data.result()
             if j < len(load_indices) - 1:
-                future_voxel_data = executor.submit(utils.load_voxel_data, cifti_paths[load_indices[j + 1]])
+                future_voxel_data = executor.submit(utils.load_voxel_data,
+                                                    cifti_paths[load_indices[j + 1]],
+                                                    censor_files[load_indices[0]])
 
             if os.path.exists(save_path) and not overwrite:
                 utils.printer(f"{save_path} already exists and no '--overwrite' flag. Skipping correlation matrix creation.")
