@@ -22,6 +22,9 @@ import precision_mapping as pm
 ps = pm.precision_mapping(dtseries_path, subject_id, sample_label, out_dir, overwrite=True)
 ```
 
+# Example:
+Outputs included parcellation and assigned brain network dlabels (`.dlabel.nii`):
+
 ![example_image](tests/outputs/example_parcellation_plot.png)
 
 
