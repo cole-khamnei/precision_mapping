@@ -41,8 +41,8 @@ class TestPrecisionMapping(unittest.TestCase):
 
     def test_sparse_correlator_options(self):
         """ """
-        # if SKIP_DONE:
-        #     return
+        if SKIP_DONE:
+            return
 
         N_TEST_REPS = 3
 
@@ -121,8 +121,8 @@ class TestPrecisionMapping(unittest.TestCase):
 
     def test_write_parcel_dlabels(self):
         """ """
-        if SKIP_DONE:
-            return
+        # if SKIP_DONE:
+        #     return
         
         pm.write.write_parcel_dlabel(TEST_SUPPLIED_PARCEL_PARTITION_PATH,
                                      TEST_OUTPUT_PARCEL_DLABEL_PATH, template_cifti=TEST_DTSERIES_PATH)
@@ -130,16 +130,16 @@ class TestPrecisionMapping(unittest.TestCase):
 
     def test_write_network_dlabels(self):
         """ """
-        if SKIP_DONE:
-            return
+        # if SKIP_DONE:
+        #     return
         
         pm.write.write_network_dlabel(TEST_SUPPLIED_NETWORK_PARTITION_PATH,
                                       TEST_OUTPUT_NETWORK_DLABEL_PATH, template_cifti=TEST_DTSERIES_PATH)
 
     def test_plots(self):
         """ """
-        if SKIP_DONE:
-            return
+        # if SKIP_DONE:
+        #     return
         
         sample_label = "UNIT TEST"
         

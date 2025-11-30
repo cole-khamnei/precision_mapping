@@ -8,10 +8,6 @@ from . import constants, utils
 from . import network_assignment as na
 from . import surface_mapping as sfm
 
-sys.path.insert(1, constants.PRECISION_MAPPING_DIR + "/../")
-import CAP_tools
-#TODO: move CAP_tools boiler code into pm repo
-
 # \section multiple argument helpers
 
 
@@ -69,7 +65,7 @@ def write_parcel_dlabel(parcel_partition_path, parcel_dlabel_path, template_cift
     template_cifti = utils.get_template_cifti(template_cifti)
     vertex_parcel_labels = load_partition_labels(parcel_partition_path, template_cifti)
     
-    parcel_values_int = CAP_tools.utils.cifti_map(None, vertex_parcel_labels, template_cifti)
+    parcel_values_int = utils.cifti_map(None, vertex_parcel_labels, template_cifti)
     write_dlabel_precision_map(parcel_values_int, parcel_dlabel_path, cmap=cmap)
 
 
@@ -85,7 +81,7 @@ def write_network_dlabel(network_partition_path, network_dlabel_path, template_c
     # single path version
     vertex_network_labels, vertex_network_strings = np.load(network_partition_path)
     vertex_network_labels = vertex_network_labels.astype(int)
-    network_values_int = CAP_tools.utils.cifti_map(None, vertex_network_labels, template_cifti)
+    network_values_int = utils.cifti_map(None, vertex_network_labels, template_cifti)
     network_name_to_num_map = {z: vertex_network_strings[np.where(vertex_network_labels == z)[0][0]]
                                for z in np.unique(vertex_network_labels)}
     network_dlabel_values = {
@@ -99,7 +95,7 @@ def write_network_dlabel(network_partition_path, network_dlabel_path, template_c
 
 def vertex_plot(values, template_cifti, ax=None, pclip=(None, None), **kwargs):
     """ """
-    values = CAP_tools.utils.cifti_map(None, values, template_cifti)
+    values = utils.cifti_map(None, values, template_cifti)
     if ax is None:
         fig, ax = plt.subplots(figsize=(12, 4))
     return sfm.surface_plot(values, ax=ax, **kwargs)
