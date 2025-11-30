@@ -5,21 +5,18 @@ import numpy as np
 import nibabel as nb
 import scipy
 
+from tqdm.auto import tqdm
 
 from . import utils
-from .utils import printer
-
-from tqdm.auto import tqdm
+from . import constants
 
 # ----------------------------------------------------------------------------# 
 # -----------              Network Assignment Helpers              -----------# 
 # ----------------------------------------------------------------------------# 
 
 
-def load_priors():
+def load_priors(priors_path = constants.NETWORK_PRIORS):
     """ """
-    priors_path = "/data/data7/network_control/projects/voxel_analysis/resources/priors.mat"
-
     priors = scipy.io.loadmat(priors_path)
     FC, spatial, network_labels, _ = priors["Priors"][0, 0]
     network_labels = np.array([lab[0][0] for lab in network_labels])
@@ -57,8 +54,6 @@ def process_partition(partition, min_voxels=0, filter_subcortex=True):
 def get_partition_cortex(partition, cifti):
     """ """
     vertex_labels, partition = process_partition(partition)
-    # vertex_labels = np.full(np.max(partition[0]) + 1, fill_value=np.nan)
-    # vertex_labels[partition[0]] = partition[1]
     return get_cortex_data(vertex_labels.reshape(1, -1), cifti)[0]
 
 
@@ -76,33 +71,32 @@ def get_network_assignment_labels(vertex_labels, vertex_data, network_labels, sp
     cluster_labels = np.sort(np.unique(remapped_vertex_labels))
     roi_index_set = remapped_vertex_labels.reshape(-1, 1) == cluster_labels
     
-    # roi_mean_signals = np.array([vertex_data[:, ri].mean(axis=1) for ri in roi_index_set.T]).T
-    # roi_mean_FCs = utils.np_corr(vertex_data, roi_mean_signals)
-    # TODO: Readjust the FC connections to use the thresholded data (specifically sparse matrices)
-    # fc_corr = utils.np_corr(FC_priors.T, roi_mean_FCs)
-    # sp_corr = utils.np_corr(spatial_priors.T, roi_index_set * 1)
-    # sp_fc_corr = sp_corr * fc_corr
-    # sp_fc_index = np.argmax(sp_fc_corr, axis=0)
+    roi_mean_signals = np.array([vertex_data[:, ri].mean(axis=1) for ri in roi_index_set.T]).T
+    roi_mean_FCs = utils.np_corr(vertex_data, roi_mean_signals)
 
-    fc_corr = 1
+    # TODO: Readjust the FC connections to use the thresholded data (specifically sparse matrices)
+    fc_corr = utils.np_corr(FC_priors.T, roi_mean_FCs)
     sp_corr = utils.np_corr(spatial_priors.T, roi_index_set * 1)
-    sp_fc_index = np.argmax(sp_corr, axis=0)
+
+    assert not np.isnan(fc_corr).any()
+
+    sp_fc_corr = sp_corr * fc_corr
+    sp_fc_index = np.argmax(sp_fc_corr, axis=0)
 
     return sp_fc_index[remapped_vertex_labels], network_labels[sp_fc_index[remapped_vertex_labels]], sp_corr, fc_corr
 
 
-def assign_networks(cifti_paths, partition_path, save_path, overwrite=False):
+def assign_networks(cifti_paths, partition_path, save_path, censor_file=None, overwrite=False):
     """ """
     cifti_paths = [cifti_paths] if isinstance(cifti_paths, str) else cifti_paths
 
     if os.path.exists(save_path) and not overwrite:
-        printer(f"{save_path} already exists and no '--overwrite' flag given. Skipping network assignment.")
+        utils.printer(f"{save_path} already exists and no '--overwrite' flag given. Skipping network assignment.")
         return
 
     template_cifti = nb.load(cifti_paths[0])
-    # full_vertex_data = utils.load_voxel_data(cifti_paths)
-    # vertex_data = get_cortex_data(full_vertex_data, template_cifti)
-    vertex_data = None
+    full_vertex_data = utils.load_voxel_data(cifti_paths, censor_file=censor_file)
+    vertex_data = get_cortex_data(full_vertex_data, template_cifti)
 
     partition = np.load(partition_path)
     vertex_labels = get_partition_cortex(partition, template_cifti)
@@ -114,23 +108,25 @@ def assign_networks(cifti_paths, partition_path, save_path, overwrite=False):
         np.save(save_path, [vn, vns])
         np.save(save_path.replace(".npy", "_corrs.npy"), [sp_corr, fc_corr])
     
-    printer("Created network assignments.")
+    utils.printer("Created network assignments.")
     return vn, vns, sp_corr, fc_corr
 
 
-def assign_networks_batch(cifti_paths, partition_paths, save_paths, n_cores=None, overwrite=False):
+def assign_networks_batch(cifti_paths, partition_paths, save_paths, censor_files=None, n_cores=None, overwrite=False):
     """ """
+    cifti_paths = utils.list_wrap(cifti_paths, str)
+    partition_paths = utils.list_wrap(partition_paths, str)
+    save_paths = utils.list_wrap(save_paths, str)
+    censor_files = None if censor_files is None else utils.list_wrap(censor_files, str)
 
     assert len(partition_paths) == len(save_paths)
     assert len(cifti_paths) == len(save_paths)
 
-    arg_sets = zip(cifti_paths, partition_paths, save_paths)
+    arg_sets = zip(cifti_paths, partition_paths, save_paths, censor_files)
     single_assign_func = lambda args: assign_networks(*args, overwrite=overwrite)
 
-    desc = "Assigning networks"
-
     results = []
-    pbar = tqdm(total=len(save_paths))
+    pbar = tqdm(total=len(save_paths), desc="Assigning parcellation networks", unit="cifti")
     for args in arg_sets:
         result = single_assign_func(args)
         pbar.update(1)

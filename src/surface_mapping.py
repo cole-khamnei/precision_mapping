@@ -8,11 +8,15 @@ import numpy as np
 import nibabel as nb
 import surfplot as sfp
 
+from . import constants
+
 # ----------------------------------------------------------------------------# 
 # --------------------             Constants              --------------------# 
 # ----------------------------------------------------------------------------# 
 
-SURFACES_DIR_PATH = "/System/Volumes/Data/data/data7/network_control/projects/network_control/resources/surfaces"
+# SURFACES_DIR_PATH = "/System/Volumes/Data/data/data7/network_control/projects/network_control/resources/surfaces"
+SURFACES_DIR_PATH = f"{constants.RESOURCES_DIR}/surfaces"
+# TODO: move surfaces into resources dir
 
 SURFACE_PATHS = glob.glob(os.path.join(SURFACES_DIR_PATH, "ec_con*.L.*"))
 SURFACE_PATHS = {spath.split(".")[2]: (spath, spath.replace(".L.", ".R.")) for spath in SURFACE_PATHS}
@@ -51,15 +55,19 @@ def create_dlabel_map(labels, null_label="???"):
     return label_to_int_map
 
 
-def create_cifti_label_map(label_to_int_map: dict, cmap = None):
+def create_cifti_label_map(label_to_int_map: dict, cmap=None):
     """ """
     if cmap is None:
-        cmap = plt.cm.viridis.resampled(len(label_to_int_map))
+        cmap = plt.cm.Spectral.resampled(len(label_to_int_map))
+        return {v: (k, (*cmap(i),)) for i, (k, v) in enumerate(label_to_int_map.items())}
 
-    return {v: (k, (*cmap.colors[i],)) for i, (k, v) in enumerate(label_to_int_map.items())}
+    else:
+        return {v: (k, (*cmap[k],)) for i, (k, v) in enumerate(label_to_int_map.items())}
+    # return {v: (k, (*cmap.colors[i],)) for i, (k, v) in enumerate(label_to_int_map.items())}
+    return {v: (k, (*cmap(i),)) for i, (k, v) in enumerate(label_to_int_map.items())}
 
 
-def labels_to_dlabel(labels, label_to_int_map: dict = None, cmap=None, label_name="label"):
+def labels_to_dlabel(labels, label_to_int_map: dict = None, cmap=None, label_name="parcels"):
     """ """
     assert CIFTI_NVERTEX == len(labels["left"])
     assert CIFTI_NVERTEX == len(labels["right"])
@@ -76,7 +84,7 @@ def labels_to_dlabel(labels, label_to_int_map: dict = None, cmap=None, label_nam
     return nb.Cifti2Image(label_ints.reshape(1, -1), header=header)
 
 
-def write_labels_to_dlabel(labels, path, label_name: str = "label", cmap=None):
+def write_labels_to_dlabel(labels, path, label_name: str = "parcels", cmap=None):
     """ """
     assert path.endswith("dlabel.nii")
     cifti = labels_to_dlabel(labels, label_name=label_name, cmap=cmap)

@@ -2,15 +2,13 @@ import os
 import gc
 
 import numpy as np
-import scipy
 import multiprocess as mp
+import scipy
 
 from infomap import Infomap
 from tqdm.auto import tqdm
 
 from . import utils
-
-from .utils import printer
 
 # ----------------------------------------------------------------------------# 
 # ----------------           Infomaps Parcellating            ----------------# 
@@ -24,7 +22,7 @@ def infomap_parcellation(matrix, save_path=None, num_trials=1, **kwargs):
     col_counts = np.array((matrix > 0).sum(axis=1)).ravel()
     vertex_edge_frac = np.mean((row_counts + col_counts) > 0) 
     if vertex_edge_frac <= 0.95:
-        printer(f"WARNING: reduced number of vertex connections. {vertex_edge_frac}")
+        utils.printer(f"WARNING: reduced number of vertex connections. {vertex_edge_frac}")
 
     infomap = Infomap(two_level=True, num_trials=num_trials, **kwargs)
     for r_i, c_i in zip(*matrix.nonzero()):
@@ -38,7 +36,6 @@ def infomap_parcellation(matrix, save_path=None, num_trials=1, **kwargs):
 
     if save_path:
         np.save(save_path, [index, values])
-        # printer(f"infomap {save_path} done.")
     
     return index, values
 
@@ -57,33 +54,39 @@ def batch_infomap_parcellation(matrices, save_paths, n_cores=None, **infomap_kwa
     return results
 
 
-def parcel_detection_single(corr_matrix, save_path, n_reps=1, overwrite=False, seed=42):
+def parcel_detection_single(corr_matrix, save_path, n_reps=1, silent=True,
+                            overwrite=False, seed=42, **kwargs):
     """ """
     # TODO: figure out how to make this accepting of mujltiple / if I want accepting of multiple
 
     if os.path.exists(save_path) and not overwrite:
-        printer(f"{save_path} already exists and no '--overwrite' flag given. Skipping parcel detection.")
+        utils.printer(f"{save_path} already exists and no '--overwrite' flag given. Skipping parcel detection.")
         return
     
     print(corr_matrix)
     sc = scipy.sparse.load_npz(corr_matrix)
-    partition = infomap_parcellation(sc, save_path=save_path, silent=True,
-                                     num_trials=n_reps, seed=seed)
+    partition = infomap_parcellation(sc, save_path=save_path, silent=silent,
+                                     num_trials=n_reps, seed=seed, **kwargs)
     gc.collect()
     return partition
 
 
-def parcel_detection(corr_matrix, save_path, n_cores=None, **parcellating_kwargs):
+def parcel_detection(corr_matrix, save_path, n_cores=None, silent=True, **parcellating_kwargs):
     """ """
     # TODO: figure out how to make this accepting of mujltiple / if I want accepting of multiple
 
-    corr_matrices = corr_matrix if isinstance(corr_matrix, str) else corr_matrix
-    save_paths = save_path if isinstance(save_path, str) else save_path
+    # corr_matrices = [corr_matrix] if isinstance(corr_matrix, str) else corr_matrix
+    # save_paths = [save_path] if isinstance(save_path, str) else save_path
+
+    corr_matrices = utils.list_wrap(corr_matrix, str)
+    save_paths = utils.list_wrap(save_path, str)
+
     assert len(corr_matrices) == len(save_paths)
 
     
     arg_sets = zip(corr_matrices, save_paths)
-    single_parcel_func = lambda args: parcel_detection_single(args[0], args[1], **parcellating_kwargs)
+    single_parcel_func = lambda args: parcel_detection_single(args[0], args[1],
+                                                              silent=silent, **parcellating_kwargs)
 
     desc = "Running infomap parcel detection"
     n_cores = utils.get_n_cores(n_cores)
@@ -94,7 +97,6 @@ def parcel_detection(corr_matrix, save_path, n_cores=None, **parcellating_kwargs
 
     return results
     
-    # printer(f"Created infomap partition")
 
 # ----------------------------------------------------------------------------# 
 # --------------------                End                 --------------------# 

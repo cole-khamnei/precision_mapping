@@ -3,9 +3,10 @@ from .src import plot
 from .src import utils
 from .src import network_assignment as na
 from .src import parcellate
-from .src import pipeline
 from .src import functional_connectivity
 from .src import constants
+from .src import write
 
-# import . precision_mapping as pm
-# from . import precision_mapping as pm
+from .precision_mapping import full_pipeline as precision_mapping
+from .precision_mapping import get_arguments
+from .precision_mapping import main
