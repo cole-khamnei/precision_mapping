@@ -1,14 +1,18 @@
 
-# precision_mapping:
+# Precision Mapping:
 A python based individualized fMRI brain parcellation package with block matrix gpu acceleration
 
 # Installation and Usage
 Download git repo
 
-```git clone git@github.com:cole-khamnei/precision_mapping.git```
+```
+git clone git@github.com:cole-khamnei/precision_mapping.git
+```
 
 Example Usage:
-```python precision_mapping/precision_mapping.py -c cifti1.dtseries.nii -s "SUBJECT01" -l "SUBJECT01_RUN1" -o output_dir/```
+```
+python precision_mapping/precision_mapping.py -c cifti1.dtseries.nii -s "SUBJECT01" -l "SUBJECT01_RUN1" -o output_dir/
+```
 
 Can also be imported as a package:
 
@@ -22,7 +26,7 @@ ps = pm.precision_mapping(dtseries_path, subject_id, sample_label, out_dir, over
 
 
 # TODO:
-# deployable package todos:
+## deployable package todos:
 	[]  add frame sensoring files
 		[] working, just need to find example '.dat' file or w/e the fileext is
 	
