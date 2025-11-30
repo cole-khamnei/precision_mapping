@@ -1,6 +1,8 @@
 import os
 
-# \section test suite paths
+# ----------------------------------------------------------------------------# 
+# --------------------          Test Suite Paths          --------------------# 
+# ----------------------------------------------------------------------------# 
 
 TEST_DIR_PATH = os.path.dirname(os.path.abspath(__file__))
 
@@ -23,11 +25,15 @@ TEST_OUTPUT_PARCEL_DLABEL_PATH = f"{TEST_OUTPUTS_DIR}/example_parcels.dlabel.nii
 
 TEST_OUTPUT_PLOT_SAVE_PATH = f"{TEST_OUTPUTS_DIR}/example_parcellation_plot.png"
 
-# \section test suite parameters
+# ----------------------------------------------------------------------------# 
+# ----------------           Test Suite Parameters            ----------------# 
+# ----------------------------------------------------------------------------# 
 
 SKIP_DONE = True
 N_TEST_REPS = 3
 
 SKIP_FULL_PIPELINE_TEST = True
 
-# \section end
+# ----------------------------------------------------------------------------# 
+# --------------------                End                 --------------------# 
+# ----------------------------------------------------------------------------#

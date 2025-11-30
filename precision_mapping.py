@@ -8,7 +8,9 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from src import functional_connectivity, network_assignment
 from src import parcellate, write, utils
 
-# \section pipeline
+# ----------------------------------------------------------------------------# 
+# --------------------              Pipeline              --------------------# 
+# ----------------------------------------------------------------------------# 
 
 
 def full_pipeline(dtseries_paths, subject_ids, sample_labels, out_dir, censor_files=None,
@@ -45,7 +47,9 @@ def full_pipeline(dtseries_paths, subject_ids, sample_labels, out_dir, censor_fi
     return path_sets
 
 
-# \section main helpers
+# ----------------------------------------------------------------------------# 
+# --------------------            Main Helpers            --------------------# 
+# ----------------------------------------------------------------------------# 
 
 
 def process_args(args):
@@ -105,7 +109,9 @@ def get_arguments(test_args: list = None):
     return args
 
 
-# \section main
+# ----------------------------------------------------------------------------# 
+# --------------------                Main                --------------------# 
+# ----------------------------------------------------------------------------# 
 
 
 def main(test_args=None):
@@ -120,10 +126,12 @@ def main(test_args=None):
                   block_size=args.block_size, 
                   device=args.device, backend=args.backend,
                   n_cores=args.n_cores)
-    
+
 
 if __name__ == '__main__':
     main()
 
 
-# \section end
+# ----------------------------------------------------------------------------# 
+# --------------------                End                 --------------------# 
+# ----------------------------------------------------------------------------#

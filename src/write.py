@@ -8,7 +8,9 @@ from . import constants, utils
 from . import network_assignment as na
 from . import surface_mapping as sfm
 
-# \section multiple argument helpers
+# ----------------------------------------------------------------------------# 
+# ------------             Multiple Argument Helpers              ------------# 
+# ----------------------------------------------------------------------------# 
 
 
 def check_multiple_args(args, main_dtype=str):
@@ -20,7 +22,9 @@ def check_multiple_args(args, main_dtype=str):
     return False
 
 
-# \section load functions for precision map intermediates
+# ----------------------------------------------------------------------------# 
+# -              Load Functions For Precision Map Intermediates              -# 
+# ----------------------------------------------------------------------------# 
 
 
 def load_FC_cortex(FC_path, template_cifti):
@@ -40,10 +44,13 @@ def load_partition_labels(partition_path, template_cifti):
 
 
 def load_network_labels(network_path):
+    """ """
     return np.load(network_save_path)[0].astype(int)
 
 
-# \section dlabel write functions
+# ----------------------------------------------------------------------------# 
+# ---------------            Dlabel Write Functions            ---------------# 
+# ----------------------------------------------------------------------------# 
 
 
 def write_dlabel_precision_map(precision_map_values, save_path, label="", **kwargs):
@@ -91,7 +98,10 @@ def write_network_dlabel(network_partition_path, network_dlabel_path, template_c
     write_dlabel_precision_map(network_dlabel_values, network_dlabel_path, cmap=cmap)
 
 
-# \section plots
+# ----------------------------------------------------------------------------# 
+# --------------------               Plots                --------------------# 
+# ----------------------------------------------------------------------------# 
+
 
 def vertex_plot(values, template_cifti, ax=None, pclip=(None, None), **kwargs):
     """ """
@@ -102,6 +112,7 @@ def vertex_plot(values, template_cifti, ax=None, pclip=(None, None), **kwargs):
 
 
 def parcel_plot(parcel_partition_path, network_partition_path, sample_label, save_path, template_cifti, close=True):
+    """ """
 
     args = [parcel_partition_path, network_partition_path, sample_label, save_path]
     if check_multiple_args(args, main_dtype=str):
@@ -127,4 +138,6 @@ def parcel_plot(parcel_partition_path, network_partition_path, sample_label, sav
 
     return
 
-# \section end
+# ----------------------------------------------------------------------------# 
+# --------------------                End                 --------------------# 
+# ----------------------------------------------------------------------------#

@@ -121,6 +121,7 @@ def np_corr(x, y):
 # --------------------           Cifti Helpers            --------------------# 
 # ----------------------------------------------------------------------------# 
 
+
 def read_censor_file(censor_file):
     """ """
     with open(censor_file, 'r') as file:
@@ -219,6 +220,7 @@ def get_n_cores(n_cores=None, cpu_offset=1):
 
 
 def assert_exists(path):
+    """ """
     assert os.path.exists(path), f"'{path}' does not exist."
 
 
