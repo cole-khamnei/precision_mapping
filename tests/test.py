@@ -71,7 +71,7 @@ class TestPrecisionMapping(unittest.TestCase):
                 default_args["device"] = gpu_device
 
         test_arg_sets = [
-            dict(backends="numpy"),
+            dict(backend="numpy"),
             dict(cifti_path=[TEST_DTSERIES_PATH] * N_TEST_REPS,
                  save_path=[TEST_OUTPUT_VERTEX_FC_PATH] * N_TEST_REPS,
                  censor_file=[TEST_DTSERIES_CENSOR_FILE] * N_TEST_REPS),
