@@ -25,6 +25,7 @@ class TestPrecisionMappingCorrelators(unittest.TestCase):
                             censor_file=cts.TEST_DTSERIES_CENSOR_FILE,
                             block_size=1000,
                             overwrite=True,
+                            sparsity=0.01,
                             backend="torch",
                             device="cpu")
         test_function = pm.functional_connectivity.generate_correlation_matrix

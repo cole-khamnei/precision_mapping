@@ -38,3 +38,6 @@ Outputs included parcellation and assigned brain network dlabels (`.dlabel.nii`)
 ### minor todos:
 	[] code comments
 		[] function descs
+
+	[] rename? - splotch, patchwork, neuroparcel, brain_mapper, brainpatch,
+		- kit, FC

@@ -39,7 +39,6 @@ def generate_correlation_matrix(cifti_path, save_path, censor_file=None,
                                 block_size=5_000,
                                 overwrite=False, leave=False, **SC_kwargs):
     """ """
-
     if isinstance(cifti_path, str) and isinstance(save_path, str):
         pass
     elif isinstance(cifti_path, str) or isinstance(save_path, str):

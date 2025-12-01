@@ -1,4 +1,4 @@
-# tests/test.py
+#tests/test_outputs.py
 
 import unittest
 import os
@@ -34,14 +34,13 @@ class TestWriteOutputs(unittest.TestCase):
         
         pm.plot.parcel_plot(cts.TEST_SUPPLIED_PARCEL_PARTITION_PATH,
                             cts.TEST_SUPPLIED_NETWORK_PARTITION_PATH,
-                            sample_label,cts.TEST_OUTPUT_PLOT_SAVE_PATH,
+                            sample_label,cts.TEST_OUTPUT_PARCEL_PLOT_PATH,
                             template_cifti=cts.TEST_DTSERIES_PATH)
 
     def test_qc_plot(self):
         """ """
-        pass
-        #todo implement
-        # raise NotImplementedError
+        pm.plot.QC_plots(cts.TEST_SUPPLIED_PARCEL_PARTITION_PATH,
+                                       cts.TEST_OUTPUT_QC_PLOT_PATH)
 
 
 if __name__ == "__main__":

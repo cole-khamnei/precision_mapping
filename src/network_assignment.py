@@ -78,12 +78,13 @@ def assign_networks(cifti_paths, partition_path, save_path, censor_file=None, ov
     return vn, vns, sp_corr, fc_corr
 
 
-def assign_networks_batch(cifti_paths, partition_paths, save_paths, censor_files=None, n_cores=None, overwrite=False):
+def assign_networks_batch(cifti_paths, partition_paths, save_paths,
+                          censor_files=None, n_cores=None, overwrite=False):
     """ """
     cifti_paths = utils.list_wrap(cifti_paths, str)
     partition_paths = utils.list_wrap(partition_paths, str)
     save_paths = utils.list_wrap(save_paths, str)
-    censor_files = None if censor_files is None else utils.list_wrap(censor_files, str)
+    censor_files = [None] * len(save_paths) if censor_files is None else utils.list_wrap(censor_files, str)
 
     assert len(partition_paths) == len(save_paths)
     assert len(cifti_paths) == len(save_paths)

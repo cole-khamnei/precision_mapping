@@ -57,7 +57,12 @@ def create_cifti_label_map(label_to_int_map: dict, cmap=None):
     """ """
     if cmap is None:
         cmap = plt.cm.Spectral.resampled(len(label_to_int_map))
-        return {v: (k, (*cmap(i),)) for i, (k, v) in enumerate(label_to_int_map.items())}
+
+    if isinstance(cmap, dict):
+        if all(k in cmap for k in label_to_int_map.keys()):
+            return {v: (k, (*cmap[k],)) for k, v in label_to_int_map.items()}
+        else:
+            return {v: (k, (*cmap[i],)) for i, (k, v) in enumerate(label_to_int_map.items())}
 
     return {v: (k, (*cmap(i),)) for i, (k, v) in enumerate(label_to_int_map.items())}
 

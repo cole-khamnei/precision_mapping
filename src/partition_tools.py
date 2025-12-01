@@ -1,5 +1,4 @@
 import numpy as np
-import scipy
 
 from . import constants, cifti_tools, utils
 from . import surface_mapping as sfm
@@ -57,10 +56,8 @@ def write_dlabel_precision_map(precision_map_values, save_path, label="", **kwar
 
 def write_parcel_dlabel(parcel_partition_path, parcel_dlabel_path, template_cifti, cmap=None):
     """ """
-    # list of paths version
     args = [parcel_partition_path, parcel_dlabel_path]
-    if utils.check_multiple_args(args, main_dtype=str):
-        np.vectorize(write_parcel_dlabel)(*args, template_cifti=template_cifti, cmap=cmap)
+    if utils.multicall(write_network_dlabel, *args, template_cifti=template_cifti, cmap=cmap):
         return
 
     template_cifti = cifti_tools.get_template_cifti(template_cifti)
@@ -73,14 +70,11 @@ def write_parcel_dlabel(parcel_partition_path, parcel_dlabel_path, template_cift
 def write_network_dlabel(network_partition_path, network_dlabel_path, template_cifti,
                         cmap=constants.NETWORK_CMAP):
     """ """
-    # list of paths version
     args = [network_partition_path, network_dlabel_path]
-    if utils.check_multiple_args(args, main_dtype=str):
-        np.vectorize(write_network_dlabel)(*args, template_cifti=template_cifti, cmap=cmap)
+    if utils.multicall(write_network_dlabel, *args, template_cifti=template_cifti, cmap=cmap):
         return
 
     template_cifti = cifti_tools.get_template_cifti(template_cifti)
-    # single path version
     vertex_network_labels, vertex_network_strings = np.load(network_partition_path)
     vertex_network_labels = vertex_network_labels.astype(int)
     network_values_int = cifti_tools.cifti_map(None, vertex_network_labels, template_cifti)

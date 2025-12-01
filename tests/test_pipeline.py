@@ -1,10 +1,8 @@
-# tests/test.py
+#tests/test_pipeline.py
 
 import unittest
 import os
 import sys
-
-# from . import constants_test_suite
 
 TEST_DIR_PATH = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, TEST_DIR_PATH + "/../../")
@@ -19,62 +17,74 @@ class TestPipeline(unittest.TestCase):
     def test_path_handling(self):
         """ """
 
-        subject_ids = "outputs"
-        sample_labels="example"
+        paths = pm.utils.create_pm_paths(cts.TEST_SUBJECT_ID, cts.TEST_SAMPLE_LABEL,
+                                         TEST_DIR_PATH)
 
-        path_sets = pm.utils.create_pm_paths(subject_ids, sample_labels, TEST_DIR_PATH)
-        (vertex_fc_paths, parcel_partition_paths, network_partition_paths, 
-         parcel_dlabel_paths, network_dlabel_paths, plot_save_paths) = path_sets
-
-        self.assertEqual(vertex_fc_paths, [cts.TEST_OUTPUT_VERTEX_FC_PATH])
-        self.assertEqual(parcel_partition_paths, [cts.TEST_OUTPUT_PARCEL_PARTITION_PATH])
-        self.assertEqual(network_partition_paths, [cts.TEST_OUTPUT_NETWORK_PARTITION_PATH])
-        self.assertEqual(parcel_dlabel_paths, [cts.TEST_OUTPUT_PARCEL_DLABEL_PATH])
-        self.assertEqual(network_dlabel_paths, [cts.TEST_OUTPUT_NETWORK_DLABEL_PATH])
-        self.assertEqual(plot_save_paths, [cts.TEST_OUTPUT_PLOT_SAVE_PATH])
+        self.assertEqual(paths["vertex-fc"], [cts.TEST_OUTPUT_VERTEX_FC_PATH])
+        self.assertEqual(paths["parcel-partition"], [cts.TEST_OUTPUT_PARCEL_PARTITION_PATH])
+        self.assertEqual(paths["network-partition"], [cts.TEST_OUTPUT_NETWORK_PARTITION_PATH])
+        self.assertEqual(paths["parcel-dlabel"], [cts.TEST_OUTPUT_PARCEL_DLABEL_PATH])
+        self.assertEqual(paths["network-dlabel"], [cts.TEST_OUTPUT_NETWORK_DLABEL_PATH])
+        self.assertEqual(paths["parcel-plot"], [cts.TEST_OUTPUT_PARCEL_PLOT_PATH])
+        self.assertEqual(paths["qc-plot"], [cts.TEST_OUTPUT_QC_PLOT_PATH])
 
     def test_load_voxel_data(self):
         """ """
-
-        voxel_data = pm.utils.load_voxel_data(cts.TEST_DTSERIES_PATH)
-        self.assertEqual(voxel_data.shape, (30, 91282))
-        censored_voxel_data = pm.utils.load_voxel_data(cts.TEST_DTSERIES_PATH,
-                                                       censor_file=cts.TEST_DTSERIES_CENSOR_FILE)
-        self.assertEqual(censored_voxel_data.shape, (29, 91282))
-        
+        voxel_data = pm.cifti_tools.load_voxel_data(cts.TEST_DTSERIES_PATH)
+        self.assertEqual(voxel_data.shape, (30, cts.FULL_CIFTI_N_VERTEX))
+        censored_voxel_data = pm.cifti_tools.load_voxel_data(cts.TEST_DTSERIES_PATH,
+                                                             censor_file=cts.TEST_DTSERIES_CENSOR_FILE)
+        self.assertEqual(censored_voxel_data.shape, (29, cts.FULL_CIFTI_N_VERTEX))
 
     def test_pm_arguments(self):
         """ """
-
-        subject_ids = "outputs"
-        sample_labels="example"
-
         pm.get_arguments(test_args=["-c", cts.TEST_DTSERIES_PATH, "-o", TEST_DIR_PATH,
-                                           "-i", subject_ids, "-l", sample_labels,
-                                           "--censor-file", cts.TEST_DTSERIES_CENSOR_FILE])
+                                    "-i", cts.TEST_SUBJECT_ID,
+                                    "-l", cts.TEST_SAMPLE_LABEL,
+                                    "--censor-file", cts.TEST_DTSERIES_CENSOR_FILE])
+
+
+    def test_pm_txt_arguments(self):
+        """ """
+        pm.get_arguments(test_args=["-c", cts.TEST_DTSERIES_LIST_PATH,
+                                    "-o", TEST_DIR_PATH,
+                                    "-i", cts.TEST_SUBJECT_IDS_LIST_PATH,
+                                    "-l", cts.TEST_SAMPLE_LABELS_LIST_PATH,
+                                    "--censor-file", cts.TEST_DTSERIES_CENSOR_FILE_LIST_PATH])
 
     def test_full_pipeline(self):
         """ """
         if cts.SKIP_FULL_PIPELINE_TEST:
             return
 
-        subject_ids = "outputs"
-        sample_labels="example"
+        pm.precision_mapping(cts.TEST_DTSERIES_PATH, cts.TEST_SUBJECT_ID,
+                             cts.TEST_SAMPLE_LABEL, TEST_DIR_PATH,
+                             sparsity=0.01, overwrite=True, #device="cpu",
+                             n_cores=1, n_infomaps_reps=1)
 
-        pm.precision_mapping(cts.TEST_DTSERIES_PATH, subject_ids, sample_labels, TEST_DIR_PATH,
-                             overwrite=True, device="cpu", n_cores=1, n_infomaps_reps=1)
-
-
-    def test_main(self):
-        """ """
+    def test_main_single_input(self):
+        # """ """
         if cts.SKIP_FULL_PIPELINE_TEST:
             return
 
-        subject_ids = "outputs"
-        sample_labels="example"
+        pm.main(test_args=["-c", cts.TEST_DTSERIES_PATH,
+                           "-o", TEST_DIR_PATH,
+                           "-i", cts.TEST_SUBJECT_ID,
+                           "-l", cts.TEST_SAMPLE_LABEL,
+                           "--overwrite", "--n-reps", "1", "--sparsity", "0.01"])
 
-        pm.main(test_args=["-c", cts.TEST_DTSERIES_PATH, "-o", TEST_DIR_PATH,
-                                  "-i", subject_ids, "-l", sample_labels])
+    def test_main_txt_input(self):
+        """ """
+        # if cts.SKIP_FULL_PIPELINE_TEST:
+        #     return
+
+        pm.main(test_args=["-c", cts.TEST_DTSERIES_LIST_PATH,
+                           "-o", TEST_DIR_PATH,
+                           "-i", cts.TEST_SUBJECT_IDS_LIST_PATH,
+                           "-l", cts.TEST_SAMPLE_LABELS_LIST_PATH,
+                           "--censor-file", cts.TEST_DTSERIES_CENSOR_FILE_LIST_PATH,
+                           "--overwrite",
+                           "--n-reps", "1", "--sparsity", "0.01"])
 
 
 if __name__ == "__main__":

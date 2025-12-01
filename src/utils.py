@@ -1,18 +1,15 @@
-import shutil
-import gc
 import os
 
 import numpy as np
 import multiprocess as mp
+import torch
 
-from tqdm.auto import tqdm
+from . import constants
 
-# ----------------------------------------------------------------------------# 
-# --------------------           Random Helpers           --------------------# 
-# ----------------------------------------------------------------------------# 
+# \section multiple argument helpers
 
 
-def list_wrap(item, *dtypes):
+def list_wrap(item, *dtypes) -> list:
     """ """
     return [item] if isinstance(item, dtypes) else item
 
@@ -26,54 +23,37 @@ def check_multiple_args(args, main_dtype=str):
     return False
 
 
-def cache_tmp_path(path, use_cache=True, write_cache=True, cache_dir="~/_tmp", pbar=False, **pb_kwargs):
+def multicall(func, *args, main_dtype=str, **kwargs):
     """ """
-    if not isinstance(path, str):
-        iter_ = tqdm(path, desc=f"Caching paths in {cache_dir}", **pb_kwargs) if pbar else path
-        return [cache_tmp_path(path_i, use_cache=use_cache, write_cache=write_cache, cache_dir=cache_dir)
-                for path_i in iter_]
+    if check_multiple_args(args, main_dtype=main_dtype):
+        np.vectorize(func)(*args, **kwargs)
+        return True
 
-    if not use_cache:
-        return path
+    return False
 
-    # TODO: builtin hash is non-deterministic, use hashlib or z-adler if want hashed option
-    # tmp_path = f"/tmp/cifti_H{hash(path)}.{path.split('.', maxsplit=1)[1]}"
 
-    tmp_path = f"{cache_dir}/" + path.split("/data/data", maxsplit=1)[1].lstrip("1234567/").replace("/", "--")
-    tmp_path = os.path.expanduser(tmp_path)
-
-    if not os.path.exists(tmp_path):
-        if write_cache:
-            shutil.copyfile(path, tmp_path)
-            gc.collect()
-        else:
-            tmp_path = path
-
-    return tmp_path
+#\section Input txt file handlers
 
 
 def read_txt(txt_path: str) -> list:
     """ """
-
     with open(txt_path, "r") as file:
         return file.read().strip().split()
 
 
-def resolve_str_txt_list(str_txt_list, file_ext=None):
+def resolve_str_txt_list(item_list, file_ext=None):
     """ """
-    # TODO: use in main
-    assert isinstance(str_txt_list, str)
+    if item_list is None:
+        return None
 
-    if str_txt_list.endswith(".txt"):
-        list_items = read_txt(str_txt_list)
-
-    else:
-        list_items = [str_txt_list]
+    if item_list[0].endswith(".txt"):
+        assert len(item_list) == 1, f"only one txt file per argument set\n{item_list}"
+        item_list = read_txt(item_list[0])
 
     if file_ext:
-        assert all(item.endswith(file_ext) for item in list_items)
+        assert all(item.endswith(file_ext) for item in item_list)
 
-    return list_items
+    return item_list
 
 
 # \section printer
@@ -95,7 +75,6 @@ class Printer:
         self.silent = False
 
 printer = Printer(silent=False)
-
 
 # ----------------------------------------------------------------------------# 
 # --------------------             Np Helpers             --------------------# 
@@ -121,9 +100,17 @@ def np_corr(x, y):
     return x_norm @ y_norm.T
 
 
-# ----------------------------------------------------------------------------# 
-# -----------------           Multiprocess Helpers           -----------------# 
-# ----------------------------------------------------------------------------# 
+# \section device/multiprocess tools
+
+
+def get_available_devices():
+    """ """
+    devices = ["cpu"]
+    if torch.mps.is_available():
+        devices.append("mps")
+    if torch.cuda.is_available():
+        devices.append("cuda")
+    return devices[::-1]
 
 
 def get_n_cores(n_cores=None, cpu_offset=1):
@@ -147,31 +134,21 @@ def assert_exists(path):
 
 def create_pm_paths(subject_ids, sample_labels, precision_maps_out_dir):
     """ """
-
     assert_exists(precision_maps_out_dir)
     subject_ids = list_wrap(subject_ids, str)
     sample_labels = list_wrap(sample_labels, str)
 
-    vertex_fc_paths, parcel_partition_paths, network_partition_paths = [], [], []
-    parcel_dlabel_paths, network_dlabel_paths, plot_save_paths = [], [], []
 
+    path_sets = {output: [] for output in constants.OUTPUT_FILE_ENDINGS.keys()}
     for subject_id, sample_label in zip(subject_ids, sample_labels):
         subject_pm_dir = os.path.join(precision_maps_out_dir, subject_id)
         if not os.path.exists(subject_pm_dir):
             os.mkdir(subject_pm_dir)
 
-        subject_generic_file_name = f"{subject_pm_dir}/{sample_label}_{{file_ending}}"
-        
-        vertex_fc_paths.append(subject_generic_file_name.format(file_ending="vertex_FC.npz"))
-        parcel_partition_paths.append(subject_generic_file_name.format(file_ending="parcel_partition.npy"))
-        network_partition_paths.append(subject_generic_file_name.format(file_ending="network_partition.npy"))
-        parcel_dlabel_paths.append(subject_generic_file_name.format(file_ending="parcels.dlabel.nii"))
+        for output, file_ending in constants.OUTPUT_FILE_ENDINGS.items():
+            path_sets[output].append(f"{subject_pm_dir}/{sample_label}_{file_ending}")
 
-        network_dlabel_paths.append(subject_generic_file_name.format(file_ending="networks.dlabel.nii"))
-        plot_save_paths.append(subject_generic_file_name.format(file_ending="parcellation_plot.png"))
-
-    return (vertex_fc_paths, parcel_partition_paths, network_partition_paths,
-            parcel_dlabel_paths, network_dlabel_paths, plot_save_paths)
+    return path_sets
 
 
 # ----------------------------------------------------------------------------# 

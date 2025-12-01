@@ -11,10 +11,12 @@ from . import partition_tools as pt
 # ----------------------------------------------------------------------------# 
 
 
-def precision_map_QC_plots(partition, save_path=None):
+def QC_plots(parcel_partition_path, save_path):
     """ """
-    #TODO: make QC plot that outputs when dlabels + plots are written
-    index, groups = partition
+    if utils.multicall(QC_plots, parcel_partition_path, save_path):
+        return
+
+    index, groups = np.load(parcel_partition_path)
     unique_groups, counts = np.unique(groups, return_counts=True)
     
     fig, ax = plt.subplots(figsize=(5, 3))
@@ -22,9 +24,9 @@ def precision_map_QC_plots(partition, save_path=None):
                 label=f"Total Communities Found: {len(counts)}\nMedian Size: {np.median(counts) // 1}\nMax Size: {np.max(counts)}")
     ax.set(xlabel="Cluster Vertices", title="Distribution of Infomap Cluster Size")
     ax.legend(title="")
-    if save_path:
-        fig.savefig(save_path, bbox_inches="tight", pad_inches=0.1)
+    fig.savefig(save_path, bbox_inches="tight", pad_inches=0.1)
 
+    return ax
 
 def vertex_plot(values, template_cifti, ax=None, **kwargs):
     """ """
@@ -34,12 +36,11 @@ def vertex_plot(values, template_cifti, ax=None, **kwargs):
     return sfm.surface_plot(values, ax=ax, **kwargs)
 
 
-def parcel_plot(parcel_partition_path, network_partition_path, sample_label, save_path, template_cifti, close=True):
+def parcel_plot(parcel_partition_path, network_partition_path, sample_label,
+                save_path, template_cifti, close=True):
     """ """
-
     args = [parcel_partition_path, network_partition_path, sample_label, save_path]
-    if utils.check_multiple_args(args, main_dtype=str):
-        np.vectorize(parcel_plot)(*args, template_cifti=template_cifti, close=close)
+    if utils.multicall(parcel_plot, *args, template_cifti=template_cifti, close=close):
         return
 
     template_cifti = cifti_tools.get_template_cifti(template_cifti)
@@ -58,8 +59,6 @@ def parcel_plot(parcel_partition_path, network_partition_path, sample_label, sav
 
     if close:
         plt.close()
-
-    return
 
 
 # ----------------------------------------------------------------------------# 
