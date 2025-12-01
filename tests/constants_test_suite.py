@@ -29,7 +29,6 @@ TEST_OUTPUT_PLOT_SAVE_PATH = f"{TEST_OUTPUTS_DIR}/example_parcellation_plot.png"
 # ----------------           Test Suite Parameters            ----------------# 
 # ----------------------------------------------------------------------------# 
 
-SKIP_DONE = True
 N_TEST_REPS = 3
 
 SKIP_FULL_PIPELINE_TEST = True

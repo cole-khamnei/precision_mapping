@@ -41,7 +41,7 @@ def create_cifti_cortex_axis(nvertex=CIFTI_NVERTEX):
     return bm_cortex
 
 
-def create_dlabel_map(labels, null_label="???"):
+def create_dlabel_map(labels):
     """ """
     label_set = np.unique(np.vstack([labels["left"], labels["right"]]))
     lb_sorter = np.array([label.lstrip("LR_") for label in label_set])
@@ -59,9 +59,6 @@ def create_cifti_label_map(label_to_int_map: dict, cmap=None):
         cmap = plt.cm.Spectral.resampled(len(label_to_int_map))
         return {v: (k, (*cmap(i),)) for i, (k, v) in enumerate(label_to_int_map.items())}
 
-    else:
-        return {v: (k, (*cmap[k],)) for i, (k, v) in enumerate(label_to_int_map.items())}
-    # return {v: (k, (*cmap.colors[i],)) for i, (k, v) in enumerate(label_to_int_map.items())}
     return {v: (k, (*cmap(i),)) for i, (k, v) in enumerate(label_to_int_map.items())}
 
 

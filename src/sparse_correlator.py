@@ -149,7 +149,7 @@ class SparseAggregator(BlockAnalysis):
         self.cache_tv, self.cache_ri, self.cache_ci = [], [], []
         self.compare_tv, self.compare_ri, self.compare_ci = self.create_empty(3)
 
-    def compare_cache(self, final=False):
+    def compare_cache(self):
         """ """
         backend = self.backend
         self.compare_tv = backend.hstack(self.cache_tv + [self.compare_tv])
@@ -158,7 +158,6 @@ class SparseAggregator(BlockAnalysis):
         self.cache_tv, self.cache_ri, self.cache_ci = [], [], []
 
         if len(self.compare_tv) > self.top_n:
-            # self.compare_tv, update_ti = self.top_k(self.compare_tv, self.top_n)
             self.compare_tv, update_ti = spc_utils.MPS_safe_topk(backend, self.device_info, self.compare_tv, self.top_n)
 
             self.compare_ri = self.compare_ri[update_ti]
@@ -220,7 +219,7 @@ class SparseAggregator(BlockAnalysis):
             self.compare_cache()
 
     def results(self):
-        self.compare_cache(final=True)
+        self.compare_cache()
 
         assert len(self.cache_tv) == 0
         # assert len(self.compare_tv) == self.top_n

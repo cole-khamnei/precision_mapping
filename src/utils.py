@@ -26,25 +26,6 @@ def check_multiple_args(args, main_dtype=str):
     return False
 
 
-class Printer:
-    def __init__(self, silent=False):
-        self.silent = silent
-
-    def __call__(self, *args):
-        """ """
-        if not self.silent:
-            print(*args)
-
-    def mute(self):
-        self.silent = True
-
-    def unmute(self):
-        self.silent = False
-
-
-printer = Printer(silent=False)
-
-
 def cache_tmp_path(path, use_cache=True, write_cache=True, cache_dir="~/_tmp", pbar=False, **pb_kwargs):
     """ """
     if not isinstance(path, str):
@@ -80,6 +61,7 @@ def read_txt(txt_path: str) -> list:
 
 def resolve_str_txt_list(str_txt_list, file_ext=None):
     """ """
+    # TODO: use in main
     assert isinstance(str_txt_list, str)
 
     if str_txt_list.endswith(".txt"):
@@ -94,9 +76,25 @@ def resolve_str_txt_list(str_txt_list, file_ext=None):
     return list_items
 
 
-def batch_str_format(str_list, **kwargs):
-    """ """
-    return [str_i.format(**kwargs) for str_i in str_list]
+# \section printer
+
+
+class Printer:
+    def __init__(self, silent=False):
+        self.silent = silent
+
+    def __call__(self, *args):
+        """ """
+        if not self.silent:
+            print(*args)
+
+    def mute(self):
+        self.silent = True
+
+    def unmute(self):
+        self.silent = False
+
+printer = Printer(silent=False)
 
 
 # ----------------------------------------------------------------------------# 
@@ -145,17 +143,6 @@ def get_n_cores(n_cores=None, cpu_offset=1):
 def assert_exists(path):
     """ """
     assert os.path.exists(path), f"'{path}' does not exist."
-
-
-def create_path_tag(prefix, sparsity, mask, exclude_subcortex, max_trs=None, dist_threshold=10):
-    """ """
-    
-    subcortex_status = "_SC" if not exclude_subcortex else ""
-    mask_tag = f"_D{dist_threshold}" if mask else ""
-    max_trs_tag = f"_TR{max_trs:0.0f}" if max_trs else ""
-    tag = f"S{sparsity * 10:.0f}{mask_tag}{subcortex_status}{max_trs_tag}"
-    
-    return f"{prefix}_{tag}"
 
 
 def create_pm_paths(subject_ids, sample_labels, precision_maps_out_dir):

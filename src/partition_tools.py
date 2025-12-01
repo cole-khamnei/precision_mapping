@@ -33,13 +33,6 @@ def get_partition_cortex(partition, cifti):
     return cifti_tools.get_cortex_data(vertex_labels.reshape(1, -1), cifti)[0]
 
 
-def load_FC_cortex(FC_path, template_cifti):
-    """ """
-    sc = scipy.sparse.load_npz(FC_path)
-    cortex_index = cifti_tools.get_cortex_data(np.arange(sc.shape[0]).reshape(1, -1), template_cifti)[0]
-    return sc[cortex_index][:, cortex_index]
-
-
 def load_partition_labels(partition_path, template_cifti):
     """ """
     partition = np.load(partition_path)
@@ -47,11 +40,6 @@ def load_partition_labels(partition_path, template_cifti):
     vertex_labels[np.isnan(vertex_labels)] = np.nanmax(vertex_labels) + 1
     remapped_vertex_labels = np.unique(vertex_labels, return_inverse=True)[1]
     return remapped_vertex_labels
-
-
-def load_network_labels(network_path):
-    """ """
-    return np.load(network_path)[0].astype(int)
 
 
 # ----------------------------------------------------------------------------# 

@@ -26,7 +26,7 @@ def precision_map_QC_plots(partition, save_path=None):
         fig.savefig(save_path, bbox_inches="tight", pad_inches=0.1)
 
 
-def vertex_plot(values, template_cifti, ax=None, pclip=(None, None), **kwargs):
+def vertex_plot(values, template_cifti, ax=None, **kwargs):
     """ """
     values = cifti_tools.cifti_map(None, values, template_cifti)
     if ax is None:

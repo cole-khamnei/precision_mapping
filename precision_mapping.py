@@ -6,7 +6,8 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from src import functional_connectivity, network_assignment
-from src import parcellate, write, utils
+from src import parcellate, utils
+from src import partition_tools as pt
 
 # ----------------------------------------------------------------------------# 
 # --------------------              Pipeline              --------------------# 
@@ -41,9 +42,9 @@ def full_pipeline(dtseries_paths, subject_ids, sample_labels, out_dir, censor_fi
 
     template_cifti = dtseries_paths[0]
 
-    write.write_parcel_dlabel(dtseries_paths, parcel_partition_paths, parcel_dlabel_paths, template_cifti)
-    write.write_network_dlabel(dtseries_paths, network_partition_paths, network_dlabel_paths, template_cifti)
-    write.parcel_plot(parcel_partition_paths, network_partition_paths, sample_labels, plot_save_paths, template_cifti)
+    pt.write_parcel_dlabel(dtseries_paths, parcel_partition_paths, parcel_dlabel_paths, template_cifti)
+    pt.write_network_dlabel(dtseries_paths, network_partition_paths, network_dlabel_paths, template_cifti)
+    pt.parcel_plot(parcel_partition_paths, network_partition_paths, sample_labels, plot_save_paths, template_cifti)
     return path_sets
 
 
