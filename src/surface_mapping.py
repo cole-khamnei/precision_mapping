@@ -14,9 +14,7 @@ from . import constants
 # --------------------             Constants              --------------------# 
 # ----------------------------------------------------------------------------# 
 
-# SURFACES_DIR_PATH = "/System/Volumes/Data/data/data7/network_control/projects/network_control/resources/surfaces"
 SURFACES_DIR_PATH = f"{constants.RESOURCES_DIR}/surfaces"
-# TODO: move surfaces into resources dir
 
 SURFACE_PATHS = glob.glob(os.path.join(SURFACES_DIR_PATH, "ec_con*.L.*"))
 SURFACE_PATHS = {spath.split(".")[2]: (spath, spath.replace(".L.", ".R.")) for spath in SURFACE_PATHS}
@@ -118,9 +116,6 @@ def surface_plot(values, ax = None, cmap = plt.cm.coolwarm, cbar=True, outline=F
         fig, ax = plt.subplots(figsize=(12, 4))
 
     if isinstance(values["left"][0], np.str_):
-        labels = sorted(set(values["left"]).union(set(values["right"])))
-
-
         label_to_int_map = create_dlabel_map(values)
         new_values = {}
         new_values["left"] = np.array([label_to_int_map[l] for l in values["left"]])
@@ -140,7 +135,7 @@ def surface_plot(values, ax = None, cmap = plt.cm.coolwarm, cbar=True, outline=F
     p.add_layer(handle_nans(values), cmap=cmap, cbar=cbar, color_range=color_range, cbar_label=cbar_label, **kwargs)
 
     if outline:
-        outlines = {"left": (values["left"] == 0) * 1, "right": (values["right"] == 0) * 1}
+        # outlines = {"left": (values["left"] == 0) * 1, "right": (values["right"] == 0) * 1}
         p.add_layer(values, cmap=plt.cm.grey, as_outline=True, cbar=False)
 
     add_surface_to_ax(ax, p, cbar=cbar)
@@ -169,8 +164,8 @@ def surface_add_cbar(values, ax, cmap, color_range=None, location="bottom",
     norm = mpl.colors.Normalize(*color_range)
     sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
     ticks = np.linspace(*color_range, n_ticks)
-    cb = plt.colorbar(sm, ax=ax, ticks=ticks, location=location, pad=pad,
-                      fraction=fraction, shrink=shrink, aspect=aspect, **cbar_kws)
+    plt.colorbar(sm, ax=ax, ticks=ticks, location=location, pad=pad,
+                 fraction=fraction, shrink=shrink, aspect=aspect, **cbar_kws)
 
 
 def add_surface_to_ax(ax, p: sfp.Plot, cbar=True):

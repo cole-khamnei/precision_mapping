@@ -10,7 +10,7 @@ TEST_INPUTS_DIR = f"{TEST_DIR_PATH}/inputs"
 TEST_OUTPUTS_DIR = f"{TEST_DIR_PATH}/outputs"
 
 TEST_DTSERIES_PATH = f"{TEST_INPUTS_DIR}/example_small.dtseries.nii"
-TEST_DTSERIES_CENSOR_FILE = f"{TEST_INPUTS_DIR}/example_small_frame_censor.1D"
+TEST_DTSERIES_CENSOR_FILE = f"{TEST_INPUTS_DIR}/example_small_frame_censor.dat"
 
 TEST_SUPPLIED_VERTEX_FC_PATH = f"{TEST_INPUTS_DIR}/example_vertex_FC.npz"
 TEST_SUPPLIED_PARCEL_PARTITION_PATH = f"{TEST_INPUTS_DIR}/example_parcel_partition.npy"

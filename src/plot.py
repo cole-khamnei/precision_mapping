@@ -78,14 +78,6 @@ def precision_map_QC_plots(partition, save_path=None):
         fig.savefig(save_path, bbox_inches="tight", pad_inches=0.1)
 
 
-# def write_dlabel_precision_map(precision_map_values, save_path, label="", **kwargs):
-#     """ """
-#     precision_map_labels = precision_map_values.copy()
-#     precision_map_labels["left"] = precision_map_labels["left"].astype(str)
-#     precision_map_labels["right"] = precision_map_labels["right"].astype(str)
-#     sfm.write_labels_to_dlabel(precision_map_labels, save_path, label_name=label, **kwargs)
-
-
 # ----------------------------------------------------------------------------# 
 # --------------------                End                 --------------------# 
 # ----------------------------------------------------------------------------#

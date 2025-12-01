@@ -3,12 +3,10 @@ import gc
 import os
 
 import numpy as np
-import scipy
 import nibabel as nb
 import multiprocess as mp
 
 from tqdm.auto import tqdm
-from time import sleep
 
 # ----------------------------------------------------------------------------# 
 # --------------------           Random Helpers           --------------------# 
@@ -125,7 +123,7 @@ def np_corr(x, y):
 def read_censor_file(censor_file):
     """ """
     with open(censor_file, 'r') as file:
-        censor_data = np.array(file.read().strip().split()).astype(int) == 1
+        censor_data = np.array(file.read().strip().split()).astype(float) == 1
 
     return censor_data
 
@@ -147,7 +145,7 @@ def load_voxel_data(dtseries_paths, censor_file=None, dtype="float32"):
 
     if censor_file is not None:
         dat_censor_indices = read_censor_file(censor_file)
-        voxel_data = voxel_data[~dat_censor_indices]
+        voxel_data = voxel_data[dat_censor_indices]
 
     return voxel_data
 

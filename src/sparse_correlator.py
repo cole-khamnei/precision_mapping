@@ -51,7 +51,7 @@ class BlockAnalysis:
             exclude_index = spc_utils.to_backend(backend, exclude_index, dtype="float16", **device_info)
 
         if symmetric and mask is not None:
-            if get_nnz_safe(mask != mask.T) == 0:
+            if spc_utils.get_nnz_safe(mask != mask.T) == 0:
                 print("Mask is not symmetric, cannot use symmetric acceleration.")
                 symmetric = False
 
@@ -85,8 +85,8 @@ class BlockAnalysis:
         """ """
         if mask is not None:
             mask_chunk = mask[a_index, b_index]
-            if get_nnz_safe(mask_chunk) > 0:
-                mask_flat = ~sparse_to_array(mask_chunk.astype(bool)).ravel()
+            if spc_utils.get_nnz_safe(mask_chunk) > 0:
+                mask_flat = ~spc_utils.sparse_to_array(mask_chunk.astype(bool)).ravel()
                 # TODO: move to_backend to a to_backend_array() which creates either np or torch
                 mask_flat = spc_utils.to_backend(self.backend, mask_flat, dtype=bool, **self.device_info)
                 select_index &= mask_flat
@@ -180,8 +180,8 @@ class SparseAggregator(BlockAnalysis):
 
         if mask is not None:
             mask_chunk = mask[a_index, b_index]
-            if get_nnz_safe(mask_chunk) > 0:
-                mask_flat = ~sparse_to_array(mask_chunk.astype(bool)).ravel()
+            if spc_utils.get_nnz_safe(mask_chunk) > 0:
+                mask_flat = ~spc_utils.sparse_to_array(mask_chunk.astype(bool)).ravel()
                 mask_flat = spc_utils.to_backend(backend,mask_flat, dtype=bool, **self.device_info)
                 threshold_chunk_tv_index &= mask_flat
 

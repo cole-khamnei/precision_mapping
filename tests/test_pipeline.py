@@ -39,7 +39,7 @@ class TestPipeline(unittest.TestCase):
         voxel_data = pm.utils.load_voxel_data(TEST_DTSERIES_PATH)
         self.assertEqual(voxel_data.shape, (30, 91282))
         censored_voxel_data = pm.utils.load_voxel_data(TEST_DTSERIES_PATH, censor_file=TEST_DTSERIES_CENSOR_FILE)
-        self.assertEqual(censored_voxel_data.shape, (28, 91282))
+        self.assertEqual(censored_voxel_data.shape, (29, 91282))
         
 
     def test_pm_arguments(self):
@@ -48,7 +48,7 @@ class TestPipeline(unittest.TestCase):
         subject_ids = "outputs"
         sample_labels="example"
 
-        args = pm.get_arguments(test_args=["-c", TEST_DTSERIES_PATH, "-o", TEST_DIR_PATH,
+        pm.get_arguments(test_args=["-c", TEST_DTSERIES_PATH, "-o", TEST_DIR_PATH,
                                            "-i", subject_ids, "-l", sample_labels,
                                            "--censor-file", TEST_DTSERIES_CENSOR_FILE])
 
@@ -72,7 +72,7 @@ class TestPipeline(unittest.TestCase):
         subject_ids = "outputs"
         sample_labels="example"
 
-        args = pm.main(test_args=["-c", TEST_DTSERIES_PATH, "-o", TEST_DIR_PATH,
+        pm.main(test_args=["-c", TEST_DTSERIES_PATH, "-o", TEST_DIR_PATH,
                                   "-i", subject_ids, "-l", sample_labels])
 
 

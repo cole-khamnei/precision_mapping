@@ -1,5 +1,4 @@
 import os
-import sys
 
 import numpy as np
 import scipy
@@ -7,7 +6,6 @@ import scipy
 from concurrent.futures import ThreadPoolExecutor
 from tqdm.auto import tqdm
 
-from . import constants
 from . import utils
 from .sparse_correlator import SparseCorrelator
 
@@ -18,7 +16,8 @@ from .sparse_correlator import SparseCorrelator
 
 
 def generate_voxel_FC(voxel_data, save_path=None, sparsity=0.1, exclude_index_path=None,
-                      mask_path=None, block_size=5000, leave=True, **SC_kwargs):
+                      mask_path=None, block_size=5_000,
+                      leave=True, **SC_kwargs):
     """ """
     exclude_index = np.load(exclude_index_path) if exclude_index_path else None 
     mask = scipy.sparse.load_npz(mask_path) if mask_path else None
@@ -34,9 +33,11 @@ def generate_voxel_FC(voxel_data, save_path=None, sparsity=0.1, exclude_index_pa
     return sc
 
 
-def generate_correlation_matrix(cifti_path, save_path, censor_file=None, sparsity=0.1, max_trs=None,
+def generate_correlation_matrix(cifti_path, save_path, censor_file=None,
+                                sparsity=0.1, max_trs=None,
                                 exclude_index_path=None, mask_path=None,
-                                block_size=5000, overwrite=False, leave=False, **SC_kwargs):
+                                block_size=5_000,
+                                overwrite=False, leave=False, **SC_kwargs):
     """ """
 
     if isinstance(cifti_path, str) and isinstance(save_path, str):
@@ -60,17 +61,19 @@ def generate_correlation_matrix(cifti_path, save_path, censor_file=None, sparsit
     if max_trs:
         voxel_data = voxel_data[:max_trs]
 
-    sc = generate_voxel_FC(voxel_data, save_path=save_path, sparsity=sparsity,
-                           exclude_index_path=exclude_index_path,
-                           mask_path=mask_path,
-                           block_size=block_size, leave=leave, **SC_kwargs)
+    generate_voxel_FC(voxel_data, save_path=save_path, sparsity=sparsity,
+                      exclude_index_path=exclude_index_path,
+                      mask_path=mask_path, block_size=block_size,
+                      leave=leave, **SC_kwargs)
 
     return save_path
 
 
-def generate_correlation_batch(cifti_paths, save_paths, censor_files=None, sparsity=0.1, max_trs=None,
-                                exclude_index_path=None, mask_path=None,
-                                block_size=5000, overwrite=False, leave=False, **SC_kwargs):
+def generate_correlation_batch(cifti_paths, save_paths, censor_files=None,
+                               sparsity=0.1, max_trs=None,
+                               exclude_index_path=None, mask_path=None,
+                               block_size=5_000, overwrite=False,
+                               leave=False, **SC_kwargs):
     """ too optimized lol, simpler and slower is often better -.-"""
     assert all(os.path.exists(os.path.dirname(path)) for path in save_paths)
 

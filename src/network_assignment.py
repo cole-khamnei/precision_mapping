@@ -1,6 +1,5 @@
 import os
 
-import multiprocess as mp
 import numpy as np
 import nibabel as nb
 import scipy
@@ -131,13 +130,6 @@ def assign_networks_batch(cifti_paths, partition_paths, save_paths, censor_files
         result = single_assign_func(args)
         pbar.update(1)
         results.append(result)
-
-    # n_cores = utils.get_n_cores(n_cores)
-    # print(n_cores)
-    # with mp.Pool(n_cores) as p:
-    #     results = []
-    #     for result in tqdm(p.imap(single_assign_func, arg_sets), total=len(save_paths), desc=desc):
-    #         results.append(result)
 
     return results
 

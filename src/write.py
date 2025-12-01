@@ -1,8 +1,6 @@
-import sys
-
 import numpy as np
+import scipy
 import matplotlib.pyplot as plt
-import nibabel as nb
     
 from . import constants, utils
 from . import network_assignment as na
@@ -45,7 +43,7 @@ def load_partition_labels(partition_path, template_cifti):
 
 def load_network_labels(network_path):
     """ """
-    return np.load(network_save_path)[0].astype(int)
+    return np.load(network_path)[0].astype(int)
 
 
 # ----------------------------------------------------------------------------# 

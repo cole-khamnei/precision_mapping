@@ -1,5 +1,5 @@
 import numpy as np
-
+import scipy
 
 from typing import Union
 
@@ -190,6 +190,26 @@ def MPS_safe_topk(backend, device_info, array, k, axis=0):
 
     else:
         raise NotImplementedError
+
+
+# ----------------------------------------------------------------------------# 
+# ----------------           Sparse Matrix Helpers            ----------------# 
+# ----------------------------------------------------------------------------# 
+
+
+def get_nnz_safe(array):
+    """ """
+    if scipy.sparse.issparse(array):
+        return array.nnz
+
+    return np.count_nonzero(array)
+
+
+def sparse_to_array(arr):
+    """ """
+    return arr.toarray() if scipy.sparse.issparse(arr) else arr
+
+
 
 # ----------------------------------------------------------------------------# 
 # --------------------                End                 --------------------# 
