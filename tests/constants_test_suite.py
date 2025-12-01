@@ -1,8 +1,8 @@
 import os
 
-# ----------------------------------------------------------------------------#
-# ----------------           Test Suite Parameters            ----------------#
-# ----------------------------------------------------------------------------#
+# ----------------------------------------------------------------------------# 
+# ----------------           Test Suite Parameters            ----------------# 
+# ----------------------------------------------------------------------------# 
 
 N_TEST_REPS = 3
 
@@ -43,6 +43,8 @@ TEST_OUTPUT_PARCEL_PLOT_PATH = f"{TEST_OUTPUTS_DIR}/example_parcellation_plot.pn
 TEST_OUTPUT_QC_PLOT_PATH = f"{TEST_OUTPUTS_DIR}/example_QC_plot.png"
 
 #generating txt files
+
+
 def write_txt_file(txt_file, input_item, n_lines):
     """ """
     with open(txt_file, 'w') as file:
@@ -53,10 +55,12 @@ write_txt_file(TEST_DTSERIES_CENSOR_FILE_LIST_PATH, TEST_DTSERIES_CENSOR_FILE, N
 write_txt_file(TEST_SUBJECT_IDS_LIST_PATH, TEST_SUBJECT_ID, N_TEST_REPS)
 write_txt_file(TEST_SAMPLE_LABELS_LIST_PATH, TEST_SAMPLE_LABEL, N_TEST_REPS)
 
-# \section constant values
+# ----------------------------------------------------------------------------# 
+# --------------------          Constant Values           --------------------# 
+# ----------------------------------------------------------------------------# 
 
 FULL_CIFTI_N_VERTEX = 91_282
 
-# ----------------------------------------------------------------------------#
-# --------------------                End                 --------------------#
+# ----------------------------------------------------------------------------# 
+# --------------------                End                 --------------------# 
 # ----------------------------------------------------------------------------#
