@@ -2,70 +2,18 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 
+from . import cifti_tools, utils
 from . import surface_mapping as sfm
-
-# ----------------------------------------------------------------------------# 
-# --------------------               Plots                --------------------# 
-# ----------------------------------------------------------------------------# 
-
-
-def evar_timeseries_plot(ev_s, axes=None, label=""):
-    """ """
-
-    if axes is None:
-        fig, (a0, a1) = plt.subplots(1, 2, figsize=(12, 3), gridspec_kw={'width_ratios': [8, 1]})
-        fig.tight_layout(w_pad=-2)
-    else:
-        a0, a1 = axes
-
-    if ev_s.ndim > 1:
-        n_trs = len(tr_s)
-        tr_s = np.arange(n_trs)
-        alpha = 1.96
-        m, sd = np.mean(ev_s, axis=0), np.std(ev_s, axis=0)
-        a0.plot(tr_s, m, label=f"{label} Mean Subject")
-        a0.fill_between(tr_s, m - alpha * sd, m + alpha * sd, alpha=0.1, label=f"{label} 95% CI")
-        a0.axhline(np.mean(ev_s), linestyle="--", alpha=0.5)
-
-    else:
-        n_trs = len(ev_s)
-        a0.plot(ev_s, label=label)
-        tr_s = np.arange(n_trs)
-        a0.fill_between(tr_s, 0, ev_s, alpha=0.1)
-
-    a0.legend()
-    a0.set_ylim(None, 1.05)
-    a0.set(xlabel="TR", ylabel="Explained Variance")
-    a0.set_xlim(-10, n_trs + 5)
-
-    a1.yaxis.tick_right()
-    a1.yaxis.set_label_position("right")
-    sns.kdeplot(y=ev_s.ravel(), ax=a1, fill=True, bw_method=0.05, label=label)
-    a1.axhline(np.mean(ev_s), linestyle="--", alpha=0.5)
-    a1.set_ylim(a0.get_ylim())
-    a1.set(ylabel="Explained Variance")
-    a1.legend(fontsize=7)
-
-    return (a0, a1)
-
+from . import partition_tools as pt
 
 # ----------------------------------------------------------------------------# 
 # --------------            Precision Mapping Plots             --------------# 
 # ----------------------------------------------------------------------------# 
 
 
-def plot_precision_map(precision_map_values, title="", save_path=None):
-    """ """
-    n_parcels = max(np.nanmax(precision_map_values["left"]), np.nanmax(precision_map_values["right"]))
-    fig, ax = plt.subplots(figsize=(12, 4))
-    ax, _ = sfm.surface_plot(precision_map_values, cmap=plt.cm.Spectral, ax=ax)
-    ax.set_title(f"{title} Precision Map\nNumber of Parcels: {n_parcels:0.0f}")
-    if save_path:
-        fig.savefig(save_path, bbox_inches="tight", pad_inches=0.1)
-
-
 def precision_map_QC_plots(partition, save_path=None):
     """ """
+    #TODO: make QC plot that outputs when dlabels + plots are written
     index, groups = partition
     unique_groups, counts = np.unique(groups, return_counts=True)
     
@@ -76,6 +24,42 @@ def precision_map_QC_plots(partition, save_path=None):
     ax.legend(title="")
     if save_path:
         fig.savefig(save_path, bbox_inches="tight", pad_inches=0.1)
+
+
+def vertex_plot(values, template_cifti, ax=None, pclip=(None, None), **kwargs):
+    """ """
+    values = cifti_tools.cifti_map(None, values, template_cifti)
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(12, 4))
+    return sfm.surface_plot(values, ax=ax, **kwargs)
+
+
+def parcel_plot(parcel_partition_path, network_partition_path, sample_label, save_path, template_cifti, close=True):
+    """ """
+
+    args = [parcel_partition_path, network_partition_path, sample_label, save_path]
+    if utils.check_multiple_args(args, main_dtype=str):
+        np.vectorize(parcel_plot)(*args, template_cifti=template_cifti, close=close)
+        return
+
+    template_cifti = cifti_tools.get_template_cifti(template_cifti)
+    vertex_parcel_labels = pt.load_partition_labels(parcel_partition_path, template_cifti)
+    vertex_network_labels, _ = np.load(network_partition_path)
+
+    fig, axes = plt.subplots(2, 1, figsize=(12, 6))
+    fig.tight_layout(h_pad=2)
+    ax, _ = vertex_plot(vertex_parcel_labels, template_cifti, cmap=plt.cm.Spectral, outline=False, ax=axes[0])
+    ax.set_title(f"{sample_label} Assigned Parcels")
+
+    ax, _ = vertex_plot(vertex_network_labels, template_cifti, cmap=plt.cm.Spectral, ax=axes[1])
+    ax.set_title(f"{sample_label} Assigned Networks")
+
+    fig.savefig(save_path, bbox_inches='tight')
+
+    if close:
+        plt.close()
+
+    return
 
 
 # ----------------------------------------------------------------------------# 

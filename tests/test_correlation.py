@@ -11,7 +11,7 @@ TEST_DIR_PATH = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, TEST_DIR_PATH + "/../../")
 import precision_mapping as pm
 
-from precision_mapping.tests.constants_test_suite import *
+from precision_mapping.tests import constants_test_suite as cts
 
 
 class TestPrecisionMappingCorrelators(unittest.TestCase):
@@ -20,9 +20,9 @@ class TestPrecisionMappingCorrelators(unittest.TestCase):
     def test_sparse_correlator_options(self):
         """ """
 
-        default_args = dict(cifti_path=TEST_DTSERIES_PATH,
-                            save_path=TEST_OUTPUT_VERTEX_FC_PATH,
-                            censor_file=TEST_DTSERIES_CENSOR_FILE,
+        default_args = dict(cifti_path=cts.TEST_DTSERIES_PATH,
+                            save_path=cts.TEST_OUTPUT_VERTEX_FC_PATH,
+                            censor_file=cts.TEST_DTSERIES_CENSOR_FILE,
                             block_size=1000,
                             overwrite=True,
                             backend="torch",
@@ -30,7 +30,7 @@ class TestPrecisionMappingCorrelators(unittest.TestCase):
         test_function = pm.functional_connectivity.generate_correlation_matrix
 
         with self.subTest(test_arguments="default args - CPU test"):
-            print(f"Testing functional_connectivity.generate_correlation_matrix:\n\tDefault args (device: cpu)")
+            print("Testing functional_connectivity.generate_correlation_matrix:\n\tDefault args (device: cpu)")
             test_function(**default_args)
 
         import torch
@@ -46,9 +46,9 @@ class TestPrecisionMappingCorrelators(unittest.TestCase):
 
         test_arg_sets = [
             dict(backend="numpy"),
-            dict(cifti_path=[TEST_DTSERIES_PATH] * N_TEST_REPS,
-                 save_path=[TEST_OUTPUT_VERTEX_FC_PATH] * N_TEST_REPS,
-                 censor_file=[TEST_DTSERIES_CENSOR_FILE] * N_TEST_REPS),
+            dict(cifti_path=[cts.TEST_DTSERIES_PATH] * cts.N_TEST_REPS,
+                 save_path=[cts.TEST_OUTPUT_VERTEX_FC_PATH] * cts.N_TEST_REPS,
+                 censor_file=[cts.TEST_DTSERIES_CENSOR_FILE] * cts.N_TEST_REPS),
         ]
         
         for test_args in test_arg_sets:

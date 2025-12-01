@@ -33,3 +33,8 @@ Outputs included parcellation and assigned brain network dlabels (`.dlabel.nii`)
 	[] add smoothing distance filter
 		[] do you exclude connections that are within the kernel size?
 			[] if yes, then can just pass the filter matrix I think
+
+
+### minor todos:
+	[] code comments
+		[] function descs

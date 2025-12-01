@@ -6,8 +6,8 @@ import scipy
 
 from tqdm.auto import tqdm
 
-from . import utils
-from . import constants
+from . import constants, utils
+from . import cifti_tools, partition_tools
 
 # ----------------------------------------------------------------------------# 
 # -----------              Network Assignment Helpers              -----------# 
@@ -21,39 +21,6 @@ def load_priors(priors_path = constants.NETWORK_PRIORS):
     network_labels = np.array([lab[0][0] for lab in network_labels])
     FC, spatial = FC.T, spatial.T
     return FC, spatial, network_labels
-
-
-def get_cortex_data(full_data, cifti):
-    """ """
-    pax = cifti.header.get_axis(1)
-    slice_LUT = {structure: sl for structure, sl,_  in pax.iter_structures()}
-    cortex_data_L = full_data[:, slice_LUT["CIFTI_STRUCTURE_CORTEX_LEFT"]]
-    cortex_data_R = full_data[:, slice_LUT["CIFTI_STRUCTURE_CORTEX_RIGHT"]]
-    return np.hstack([cortex_data_L, cortex_data_R])
-
-
-def process_partition(partition, min_voxels=0, filter_subcortex=True):
-    """ """
-    index, groups = partition
-    if filter_subcortex:
-        # TODO: fix these issues, subcortex masking may not be correct
-        subcortex_index = index >= (32_492 * 2)
-        index, groups = index[~subcortex_index], np.unique(groups[~subcortex_index], return_inverse=True)[1]
-
-    groups = np.random.permutation(np.max(groups))[groups - 1]    
-    unique_groups, counts = np.unique(groups, return_counts=True)
-    count_filter = np.isin(groups, unique_groups[counts >= min_voxels])
-    
-    vertex_labels = np.full(np.max(index) + 1, fill_value=np.nan)
-    vertex_labels[index[count_filter]] = groups[count_filter]
-    
-    return vertex_labels, (index, groups)
-
-
-def get_partition_cortex(partition, cifti):
-    """ """
-    vertex_labels, partition = process_partition(partition)
-    return get_cortex_data(vertex_labels.reshape(1, -1), cifti)[0]
 
 
 # ----------------------------------------------------------------------------# 
@@ -73,7 +40,7 @@ def get_network_assignment_labels(vertex_labels, vertex_data, network_labels, sp
     roi_mean_signals = np.array([vertex_data[:, ri].mean(axis=1) for ri in roi_index_set.T]).T
     roi_mean_FCs = utils.np_corr(vertex_data, roi_mean_signals)
 
-    # TODO: Readjust the FC connections to use the thresholded data (specifically sparse matrices)
+    # TODO: Readjust the FC connections to use the thresholded data (specifically sparse matrices)?
     fc_corr = utils.np_corr(FC_priors.T, roi_mean_FCs)
     sp_corr = utils.np_corr(spatial_priors.T, roi_index_set * 1)
 
@@ -94,11 +61,11 @@ def assign_networks(cifti_paths, partition_path, save_path, censor_file=None, ov
         return
 
     template_cifti = nb.load(cifti_paths[0])
-    full_vertex_data = utils.load_voxel_data(cifti_paths, censor_file=censor_file)
-    vertex_data = get_cortex_data(full_vertex_data, template_cifti)
+    full_vertex_data = cifti_tools.load_voxel_data(cifti_paths, censor_file=censor_file)
+    vertex_data = cifti_tools.get_cortex_data(full_vertex_data, template_cifti)
 
     partition = np.load(partition_path)
-    vertex_labels = get_partition_cortex(partition, template_cifti)
+    vertex_labels = partition_tools.get_partition_cortex(partition, template_cifti)
 
     FC, spatial, network_labels = load_priors()
     vn, vns, sp_corr, fc_corr = get_network_assignment_labels(vertex_labels, vertex_data, network_labels, spatial, FC)

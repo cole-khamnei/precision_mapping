@@ -6,7 +6,7 @@ import scipy
 from concurrent.futures import ThreadPoolExecutor
 from tqdm.auto import tqdm
 
-from . import utils
+from . import cifti_tools, utils
 from .sparse_correlator import SparseCorrelator
 
 
@@ -56,7 +56,7 @@ def generate_correlation_matrix(cifti_path, save_path, censor_file=None,
         utils.printer(f"{save_path} already exists and no '--overwrite' flag. Skipping correlation matrix creation.")
         return save_path
     
-    voxel_data = utils.load_voxel_data(cifti_path, censor_file=censor_file)
+    voxel_data = cifti_tools.load_voxel_data(cifti_path, censor_file=censor_file)
 
     if max_trs:
         voxel_data = voxel_data[:max_trs]
@@ -88,18 +88,18 @@ def generate_correlation_batch(cifti_paths, save_paths, censor_files=None,
         pbar.close()
         return written_save_paths
 
-    censor_files = [None] * len(cifti_paths) if None else censor_files
+    censor_files = [None] * len(cifti_paths) if censor_files is None else censor_files
 
     with ThreadPoolExecutor(max_workers=3) as executor:
 
-        future_voxel_data = executor.submit(utils.load_voxel_data,
+        future_voxel_data = executor.submit(cifti_tools.load_voxel_data,
                                             cifti_paths[load_indices[0]],
                                             censor_files[load_indices[0]])
         for j, load_index in enumerate(load_indices):
             save_path = save_paths[load_index]
             voxel_data = future_voxel_data.result()
             if j < len(load_indices) - 1:
-                future_voxel_data = executor.submit(utils.load_voxel_data,
+                future_voxel_data = executor.submit(cifti_tools.load_voxel_data,
                                                     cifti_paths[load_indices[j + 1]],
                                                     censor_files[load_indices[0]])
 

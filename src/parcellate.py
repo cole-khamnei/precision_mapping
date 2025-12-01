@@ -40,30 +40,13 @@ def infomap_parcellation(matrix, save_path=None, num_trials=1, **kwargs):
     return index, values
 
 
-def batch_infomap_parcellation(matrices, save_paths, n_cores=None, **infomap_kwargs):
-    """ """
-    n_cores = utils.get_n_cores(n_cores)
-
-    arg_sets = zip(matrices, save_paths)
-    single_parcel_func = lambda args: infomap_parcellation(args[0], args[1], silent=True, **infomap_kwargs)
-
-    with mp.Pool(n_cores) as p:
-        results = p.map_async(single_parcel_func, arg_sets)
-        results = results.get()
-
-    return results
-
-
 def parcel_detection_single(corr_matrix, save_path, n_reps=1, silent=True,
                             overwrite=False, seed=42, **kwargs):
     """ """
-    # TODO: figure out how to make this accepting of mujltiple / if I want accepting of multiple
-
     if os.path.exists(save_path) and not overwrite:
         utils.printer(f"{save_path} already exists and no '--overwrite' flag given. Skipping parcel detection.")
         return
     
-    print(corr_matrix)
     sc = scipy.sparse.load_npz(corr_matrix)
     partition = infomap_parcellation(sc, save_path=save_path, silent=silent,
                                      num_trials=n_reps, seed=seed, **kwargs)
@@ -73,10 +56,6 @@ def parcel_detection_single(corr_matrix, save_path, n_reps=1, silent=True,
 
 def parcel_detection(corr_matrix, save_path, n_cores=None, silent=True, **parcellating_kwargs):
     """ """
-    # TODO: figure out how to make this accepting of mujltiple / if I want accepting of multiple
-
-    # corr_matrices = [corr_matrix] if isinstance(corr_matrix, str) else corr_matrix
-    # save_paths = [save_path] if isinstance(save_path, str) else save_path
 
     corr_matrices = utils.list_wrap(corr_matrix, str)
     save_paths = utils.list_wrap(save_path, str)

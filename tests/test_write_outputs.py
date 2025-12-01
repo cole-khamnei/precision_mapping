@@ -4,13 +4,12 @@ import unittest
 import os
 import sys
 
-# from . import constants_test_suite
-
 TEST_DIR_PATH = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, TEST_DIR_PATH + "/../../")
 import precision_mapping as pm
 
-from precision_mapping.tests.constants_test_suite import *
+from precision_mapping import partition_tools as pt
+from precision_mapping.tests import constants_test_suite as cts
 
 
 class TestWriteOutputs(unittest.TestCase):
@@ -18,21 +17,31 @@ class TestWriteOutputs(unittest.TestCase):
 
     def test_write_parcel_dlabels(self):
         """ """
-        pm.write.write_parcel_dlabel(TEST_SUPPLIED_PARCEL_PARTITION_PATH,
-                                     TEST_OUTPUT_PARCEL_DLABEL_PATH, template_cifti=TEST_DTSERIES_PATH)
+        pt.write_parcel_dlabel(cts.TEST_SUPPLIED_PARCEL_PARTITION_PATH,
+                               cts.TEST_OUTPUT_PARCEL_DLABEL_PATH,
+                               template_cifti=cts.TEST_DTSERIES_PATH)
 
 
     def test_write_network_dlabels(self):
         """ """
-        pm.write.write_network_dlabel(TEST_SUPPLIED_NETWORK_PARTITION_PATH,
-                                      TEST_OUTPUT_NETWORK_DLABEL_PATH, template_cifti=TEST_DTSERIES_PATH)
+        pt.write_network_dlabel(cts.TEST_SUPPLIED_NETWORK_PARTITION_PATH,
+                                cts.TEST_OUTPUT_NETWORK_DLABEL_PATH,
+                                template_cifti=cts.TEST_DTSERIES_PATH)
 
-    def test_plots(self):
+    def test_parcel_plot(self):
         """ """
         sample_label = "UNIT TEST"
         
-        pm.write.parcel_plot(TEST_SUPPLIED_PARCEL_PARTITION_PATH, TEST_SUPPLIED_NETWORK_PARTITION_PATH,
-                             sample_label,TEST_OUTPUT_PLOT_SAVE_PATH, template_cifti=TEST_DTSERIES_PATH)
+        pm.plot.parcel_plot(cts.TEST_SUPPLIED_PARCEL_PARTITION_PATH,
+                            cts.TEST_SUPPLIED_NETWORK_PARTITION_PATH,
+                            sample_label,cts.TEST_OUTPUT_PLOT_SAVE_PATH,
+                            template_cifti=cts.TEST_DTSERIES_PATH)
+
+    def test_qc_plot(self):
+        """ """
+        pass
+        #todo implement
+        # raise NotImplementedError
 
 
 if __name__ == "__main__":

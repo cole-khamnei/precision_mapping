@@ -7,6 +7,8 @@ from .src import functional_connectivity
 from .src import constants
 from .src import write
 
+from .src import partition_tools, cifti_tools
+
 from .precision_mapping import full_pipeline as precision_mapping
 from .precision_mapping import get_arguments
 from .precision_mapping import main
