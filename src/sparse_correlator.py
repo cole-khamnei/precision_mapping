@@ -179,11 +179,11 @@ class SparseAggregator(BlockAnalysis):
             threshold_chunk_tv_index &= (exclude_chunk == 0).flatten()
 
         if mask is not None:
-            # print(mask.shape)
             mask_chunk = mask[a_index, b_index]
             if spc_utils.get_nnz_safe(mask_chunk) > 0:
+                # takes mask as bool, inverts (1/true specificies discard)
                 mask_flat = ~spc_utils.sparse_to_array(mask_chunk.astype(bool)).ravel()
-                mask_flat = spc_utils.to_backend(backend,mask_flat, dtype=bool, **self.device_info)
+                mask_flat = spc_utils.to_backend(backend, mask_flat, dtype=bool, **self.device_info)
                 threshold_chunk_tv_index &= mask_flat
 
         if not threshold_chunk_tv_index.any():

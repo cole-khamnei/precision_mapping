@@ -27,7 +27,7 @@ def generate_voxel_FC(voxel_data,
     exclude_index = np.load(exclude_index_path) if exclude_index_path else None
 
     if str(mask).isdigit():
-        mask = constants.get_geodesic_distance_mask(int(mask))
+        mask = constants.get_geodesic_distance_mask_path(int(mask))
 
     mask = scipy.sparse.load_npz(mask) if mask else None
 
