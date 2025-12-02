@@ -28,7 +28,7 @@ class TestPrecisionMappingCorrelators(unittest.TestCase):
                             sparsity=0.01,
                             backend="torch",
                             leave=True,
-                            mask_path=pm.constants.get_geodesic_distance_mask_path(30),
+                            mask=pm.constants.get_geodesic_distance_mask_path(30),
                             device="cpu")
 
         test_function = pm.functional_connectivity.generate_correlation_matrix
