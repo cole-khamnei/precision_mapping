@@ -18,7 +18,9 @@ def full_pipeline(dtseries_paths, subject_ids, sample_labels, out_dir,
                   sparsity=constants.DEFAULT_FC_SPARSITY,
                   overwrite=False, silent=True,
                   block_size=constants.DEFAULT_BLOCK_SIZE,
-                  backend="torch", device="cpu",
+                  backend="torch",
+                  device="default",
+                  seed=constants.DEFAULT_SEED,
                   n_cores=constants.DEFAULT_N_CORES,
                   n_infomaps_reps=constants.DEFAULT_N_INFOMAPS_REPS):
     """ """
@@ -41,7 +43,8 @@ def full_pipeline(dtseries_paths, subject_ids, sample_labels, out_dir,
                                 n_cores=n_cores,
                                 n_reps=n_infomaps_reps,
                                 overwrite=overwrite,
-                                silent=silent)
+                                silent=silent,
+                                seed=seed)
     network_assignment.assign_networks_batch(dtseries_paths,
                                              paths["parcel-partition"],
                                              paths["network-partition"],
@@ -69,9 +72,6 @@ def process_args(args):
     args.subject_ids = utils.resolve_str_txt_list(args.subject_ids)
     args.sample_labels = utils.resolve_str_txt_list(args.sample_labels)
     args.censor_files = utils.resolve_str_txt_list(args.censor_files, file_ext=".dat")
-
-    if args.device == "default":
-        args.device = utils.get_available_devices()[0]
 
     return args
 
@@ -152,6 +152,7 @@ def main(test_args=None):
                   silent=not args.verbose,
                   sparsity=args.sparsity,
                   n_infomaps_reps=args.n_reps,
+                  seed=args.seed,
                   block_size=args.block_size, 
                   device=args.device,
                   backend=args.backend,

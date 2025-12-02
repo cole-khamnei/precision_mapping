@@ -59,7 +59,7 @@ class TestPipeline(unittest.TestCase):
 
         pm.precision_mapping(cts.TEST_DTSERIES_PATH, cts.TEST_SUBJECT_ID,
                              cts.TEST_SAMPLE_LABEL, TEST_DIR_PATH,
-                             sparsity=0.01, overwrite=True, #device="cpu",
+                             sparsity=0.01, overwrite=True,
                              n_cores=1, n_infomaps_reps=1)
 
     def test_main_single_input(self):

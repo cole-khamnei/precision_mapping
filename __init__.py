@@ -7,6 +7,7 @@ from .src import partition_tools
 from .src import functional_connectivity
 from .src import parcellate
 from .src import network_assignment as na
+from .tests import constants_test_suite as test_constants
 
 from .precision_mapping import full_pipeline as precision_mapping
 from .precision_mapping import get_arguments

@@ -1,6 +1,5 @@
 import numpy as np
 import scipy
-import torch
 
 from tqdm.auto import tqdm
 
@@ -18,7 +17,6 @@ class BlockAnalysis:
         self.size = data.shape[1]
         self.shape = (data.shape[1], data.shape[1])
         
-        #TODO: refactor device handling
         self.backend = spc_utils.get_backend(backend)
         self.device_info = spc_utils.get_device_info(backend, device)
 
@@ -86,7 +84,6 @@ class BlockAnalysis:
             mask_chunk = mask[a_index, b_index]
             if spc_utils.get_nnz_safe(mask_chunk) > 0:
                 mask_flat = ~spc_utils.sparse_to_array(mask_chunk.astype(bool)).ravel()
-                # TODO: move to_backend to a to_backend_array() which creates either np or torch
                 mask_flat = spc_utils.to_backend(self.backend, mask_flat, dtype=bool, **self.device_info)
                 select_index &= mask_flat
 
@@ -134,7 +131,6 @@ class SparseAggregator(BlockAnalysis):
         super().__init__(*args, **kwargs)
 
         self.sparsity_frac = sparsity_percent / 100
-
 
         # TODO: determine if sparsity percent should be before or after diagonal skip
         n_items = self.size ** 2 - self.size if self.skip_diagonal else self.size ** 2
@@ -201,13 +197,10 @@ class SparseAggregator(BlockAnalysis):
         chunk_ti = spc_utils.MPS_safe_where(backend, self.device_info, threshold_chunk_tv_index)
         chunk_ri, chunk_ci = spc_utils.MPS_safe_unravel_index(backend, self.device_info, chunk_ti, M_chunk.shape)
 
-        # chunk_ti = backend.where(threshold_chunk_tv_index)[0]
         if len(chunk_ti) == 0:
             return
 
         chunk_tv = chunk_tv[chunk_ti]
-
-        # chunk_ri, chunk_ci = backend.unravel_index(chunk_ti, M_chunk.shape)
         chunk_ri += a_index.start
         chunk_ci += b_index.start
 
@@ -222,12 +215,12 @@ class SparseAggregator(BlockAnalysis):
         self.compare_cache()
 
         assert len(self.cache_tv) == 0
-        # assert len(self.compare_tv) == self.top_n
 
         tv, ri, ci = spc_utils.to_np((self.compare_tv, self.compare_ri, self.compare_ci))
         if self.symmetric:
             non_diag_index = ri != ci
             tv = np.hstack([tv, tv[non_diag_index]])
+
             # following is purposely done in one line
             ri, ci = np.hstack([ri, ci[non_diag_index]]), np.hstack([ci, ri[non_diag_index]])
 

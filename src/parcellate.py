@@ -41,7 +41,7 @@ def infomap_parcellation(matrix, save_path=None, num_trials=1, **kwargs):
 
 
 def parcel_detection_single(corr_matrix, save_path, n_reps=1, silent=True,
-                            overwrite=False, seed=42, **kwargs):
+                            overwrite=False, seed=137, **kwargs):
     """ """
     if os.path.exists(save_path) and not overwrite:
         utils.printer(f"{save_path} already exists and no '--overwrite' flag given. Skipping parcel detection.")
@@ -54,19 +54,16 @@ def parcel_detection_single(corr_matrix, save_path, n_reps=1, silent=True,
     return partition
 
 
-def parcel_detection(corr_matrix, save_path, n_cores=None, silent=True, **parcellating_kwargs):
+def parcel_detection(corr_matrix, save_path, n_cores=None, silent=True,
+                     seed=137, **parcellating_kwargs):
     """ """
-
     corr_matrices = utils.list_wrap(corr_matrix, str)
     save_paths = utils.list_wrap(save_path, str)
 
     assert len(corr_matrices) == len(save_paths)
-
     
     arg_sets = zip(corr_matrices, save_paths)
-    single_parcel_func = lambda args: parcel_detection_single(args[0], args[1],
-                                                              silent=silent, **parcellating_kwargs)
-
+    single_parcel_func = lambda args: parcel_detection_single(args[0], args[1], silent=silent, **parcellating_kwargs)
     desc = "Running infomap parcel detection"
     n_cores = utils.get_n_cores(n_cores)
     with mp.Pool(n_cores) as p:

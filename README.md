@@ -1,6 +1,6 @@
 
 # Precision Mapping:
-A python based individualized fMRI brain parcellation package with block matrix gpu acceleration
+A python based individualized fMRI brain parcellation package based on [src *** ] in python with performance optimizations for reduced memory usage and gpu accelleration using block matrix math.
 
 # Installation and Usage
 Download git repo
@@ -19,7 +19,7 @@ Can also be imported as a package:
 ```
 import precision_mapping as pm
 
-ps = pm.precision_mapping(dtseries_path, subject_id, sample_label, out_dir, overwrite=True)
+pm.precision_mapping(dtseries_path, subject_id, sample_label, out_dir, overwrite=True)
 ```
 
 # Example:
@@ -33,6 +33,7 @@ Outputs included parcellation and assigned brain network dlabels (`.dlabel.nii`)
 	[] add smoothing distance filter
 		[] do you exclude connections that are within the kernel size?
 			[] if yes, then can just pass the filter matrix I think
+	[] add exclude cortex filters
 
 
 ### minor todos:
@@ -41,5 +42,5 @@ Outputs included parcellation and assigned brain network dlabels (`.dlabel.nii`)
 
 	[] rename? - splotch, patchwork, neuroparcel, brain_mapper, brainpatch,
 		- kit, FC
-	[] add citations
-	[] make example notebook
+	[] add citations!
+

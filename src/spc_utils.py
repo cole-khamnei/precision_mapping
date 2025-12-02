@@ -1,25 +1,12 @@
 import numpy as np
+import torch
 import scipy
 
 from typing import Union
 
 Module = None
 
-VALID_BACKENDS = {"numpy": np}
-
-import torch
-VALID_BACKENDS["torch"] = torch
-USE_CUDA = torch.cuda.is_available()
-USE_MPS = torch.mps.is_available()
-DEFAULT_DEVICE = "cuda" if USE_CUDA else "mps" if USE_MPS else "cpu"
-
-
-try:
-    import mlx.core as mx
-    VALID_BACKENDS["mlx"] = mx
-except:
-    pass
-
+VALID_BACKENDS = {"numpy": np, "torch": torch}
 
 # ----------------------------------------------------------------------------# 
 # --------------------          Backend Helpers           --------------------# 
@@ -56,6 +43,16 @@ def get_backend(backend: Union[str, Module]) -> Module:
     return backend
 
 
+def get_available_devices():
+    """ """
+    devices = ["cpu"]
+    if torch.mps.is_available():
+        devices.append("mps")
+    if torch.cuda.is_available():
+        devices.append("cuda")
+    return devices[::-1]
+
+
 def get_device_info(backend: Union[str, Module], device) -> dict:
     """ """
 
@@ -66,17 +63,10 @@ def get_device_info(backend: Union[str, Module], device) -> dict:
         return {}
 
     elif backend_name == "torch":
-        device = DEFAULT_DEVICE if device is None else device
+        if (device == "default") or (device is None):
+            device = get_available_devices()[0]
+
         return {"device": device}
-
-    elif backend_name == "mlx":
-        device = mx.gpu if device is None else device
-        if isinstance(device, str):
-            device = mx.cpu if device.lower() == "cpu" else mx.gpu
-
-        # TODO: Arrays are shared in MLX, so no need to move to gpu, however, need to specify stream
-        return {}
-        # return {"stream": device}
     
     raise NotImplementedError
 
@@ -89,9 +79,6 @@ def backend_array(backend: Union[str, Module]):
 
     elif backend_name == "torch":
         return torch.tensor
-
-    elif backend_name == "mlx":
-        return mx.array
 
     raise NotImplementedError
 
@@ -208,7 +195,6 @@ def get_nnz_safe(array):
 def sparse_to_array(arr):
     """ """
     return arr.toarray() if scipy.sparse.issparse(arr) else arr
-
 
 
 # ----------------------------------------------------------------------------# 

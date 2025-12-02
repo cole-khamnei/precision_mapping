@@ -113,7 +113,7 @@ def generate_correlation_batch(cifti_paths, save_paths, censor_files=None,
                                    mask_path=mask_path,
                                    block_size=block_size, leave=leave, **SC_kwargs)
 
-            # Asynchronously save files (takes ~3 seconds on NAS)
+            # Asynchronously save files (takes ~3 seconds on 6Gb/s NAS)
             executor.submit(scipy.sparse.save_npz, save_path, sc)
 
             results.append(save_path)
