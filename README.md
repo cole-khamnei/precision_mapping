@@ -30,9 +30,7 @@ Outputs included parcellation and assigned brain network dlabels (`.dlabel.nii`)
 
 # TODO:
 ## Shareable package todos:
-	[] add smoothing distance filter
-		[] do you exclude connections that are within the kernel size?
-			[] if yes, then can just pass the filter matrix I think
+	[] smoothing distance mask: check?
 	[] add exclude cortex filters
 
 
