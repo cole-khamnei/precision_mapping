@@ -15,11 +15,13 @@ from src import partition_tools as pt
 
 def full_pipeline(dtseries_paths, subject_ids, sample_labels, out_dir,
                   censor_files=None,
+                  overwrite=False,
+                  silent=True,
                   sparsity=constants.DEFAULT_FC_SPARSITY,
-                  overwrite=False, silent=True,
-                  block_size=constants.DEFAULT_BLOCK_SIZE,
+                  mask=constants.DEFAULT_MASK,
                   backend="torch",
                   device="default",
+                  block_size=constants.DEFAULT_BLOCK_SIZE,
                   seed=constants.DEFAULT_SEED,
                   n_cores=constants.DEFAULT_N_CORES,
                   n_infomaps_reps=constants.DEFAULT_N_INFOMAPS_REPS):
@@ -30,10 +32,12 @@ def full_pipeline(dtseries_paths, subject_ids, sample_labels, out_dir,
     censor_files = None if censor_files is None else utils.list_wrap(censor_files, str)
     paths = utils.create_pm_paths(subject_ids, sample_labels, out_dir)
 
+    #TODO: add include index mapping
     functional_connectivity.generate_correlation_matrix(dtseries_paths,
                                                         paths["vertex-fc"],
                                                         censor_file=censor_files,
                                                         sparsity=sparsity,
+                                                        mask=mask,
                                                         block_size=block_size,
                                                         overwrite=overwrite,
                                                         backend=backend,
@@ -107,8 +111,12 @@ def get_arguments(test_args: list = None):
 
     # FC arguments
     parser.add_argument("--sparsity", dest='sparsity', action="store", type=float,
-                        default=constants.DEFAULT_FC_SPARSITY,
-                        help="FC Sparsity Percent")
+                        default=constants.DEFAULT_FC_SPARSITY, help="FC Sparsity Percent")
+
+    parser.add_argument("--mask", dest='mask', action="store", type=str,
+                        default=constants.DEFAULT_MASK,
+                        help="FC vertex  distance mask (sparse matrix (npz) that"
+                             "specifies vertex pairs to exclude (1)")
 
     # FC acceleration args
     parser.add_argument("--block-size", dest='block_size', action="store", type=int,
@@ -151,6 +159,7 @@ def main(test_args=None):
                   overwrite=args.overwrite,
                   silent=not args.verbose,
                   sparsity=args.sparsity,
+                  mask=args.mask,
                   n_infomaps_reps=args.n_reps,
                   seed=args.seed,
                   block_size=args.block_size, 

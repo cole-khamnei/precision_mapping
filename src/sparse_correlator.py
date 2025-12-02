@@ -27,12 +27,17 @@ class BlockAnalysis:
         self.create_empty = lambda k=1: [self.backend.ones(0, **self.device_info) for _ in range(k)]
 
     @classmethod
-    def run(cls, data, mask=None, exclude_index=None, block_size=4_000,
-            backend="torch", device=None, leave=True,
-            symmetric=False, dtype="float32", **block_params):
+    def run(cls, data,
+            mask=None,
+            exclude_index=None,
+            block_size=4_000,
+            backend="torch",
+            device=None,
+            leave=True,
+            symmetric=False,
+            dtype="float32",
+            **block_params):
         """
-        TODO: added second data matrix and scan through both matrices
-        TODO: add symmetry argument that scans through only half of matrix
 
         """
 
@@ -81,6 +86,7 @@ class BlockAnalysis:
     def get_mask_chunk_index(self, mask, a_index, b_index, select_index):
         """ """
         if mask is not None:
+            # print(mask.shape)
             mask_chunk = mask[a_index, b_index]
             if spc_utils.get_nnz_safe(mask_chunk) > 0:
                 mask_flat = ~spc_utils.sparse_to_array(mask_chunk.astype(bool)).ravel()
@@ -173,6 +179,7 @@ class SparseAggregator(BlockAnalysis):
             threshold_chunk_tv_index &= (exclude_chunk == 0).flatten()
 
         if mask is not None:
+            # print(mask.shape)
             mask_chunk = mask[a_index, b_index]
             if spc_utils.get_nnz_safe(mask_chunk) > 0:
                 mask_flat = ~spc_utils.sparse_to_array(mask_chunk.astype(bool)).ravel()

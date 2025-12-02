@@ -8,15 +8,6 @@ PM_SRC_PATH = os.path.dirname(os.path.abspath(__file__))
 PRECISION_MAPPING_DIR = os.path.realpath(f"{PM_SRC_PATH}/../")
 RESOURCES_DIR = f"{PRECISION_MAPPING_DIR}/resources"
 
-OUTPUT_FILE_ENDINGS = {
-    "vertex-fc": "vertex_FC.npz",
-    "parcel-partition": "parcel_partition.npy",
-    "network-partition": "network_partition.npy",
-    "parcel-dlabel": "parcels.dlabel.nii",
-    "network-dlabel": "networks.dlabel.nii",
-    "parcel-plot": "parcellation_plot.png",
-    "qc-plot": "QC_plot.png",
-}
 
 # ----------------------------------------------------------------------------# 
 # --------------------           Resource Paths           --------------------# 
@@ -49,6 +40,15 @@ NETWORK_CMAP = {
 }
 NETWORK_CMAP = {k: [v_i/255 for v_i in v] for k,v in NETWORK_CMAP.items()}
 
+# \section brain distance masks
+
+BRAIN_DISTANCE_DIR = f"{RESOURCES_DIR}/brain_distances"
+
+def get_geodesic_distance_mask_path(distance):
+    return f"{BRAIN_DISTANCE_DIR}/geodesic_mask_{distance}.npz"
+
+DEFAULT_MASK = get_geodesic_distance_mask_path(30)
+
 # ----------------------------------------------------------------------------# 
 # ---------------            Main Argument Defaults            ---------------# 
 # ----------------------------------------------------------------------------# 
@@ -58,6 +58,16 @@ DEFAULT_N_INFOMAPS_REPS = 50
 DEFAULT_N_CORES = 1
 DEFAULT_FC_SPARSITY = 0.1
 DEFAULT_BLOCK_SIZE = 1_000
+
+OUTPUT_FILE_ENDINGS = {
+    "vertex-fc": "vertex_FC.npz",
+    "parcel-partition": "parcel_partition.npy",
+    "network-partition": "network_partition.npy",
+    "parcel-dlabel": "parcels.dlabel.nii",
+    "network-dlabel": "networks.dlabel.nii",
+    "parcel-plot": "parcellation_plot.png",
+    "qc-plot": "QC_plot.png",
+}
 
 # ----------------------------------------------------------------------------# 
 # --------------------                End                 --------------------# 
