@@ -91,7 +91,7 @@ def get_arguments(test_args: list = None):
     parser.add_argument("-l", "--sample-labels", dest='sample_labels', action="extend", nargs="+",
                         required=True, help="Sample labels (SUBJECT137_RUN_1) or txt file")
     parser.add_argument("--censor-files", dest='censor_files', action="extend", nargs="+",
-                        help="Paths to dat files for frame sensoring or txt file")
+                        help="Paths to dat files for frame sensoring or txt file (inclusion list - with 1s being include and in a row or column tsv form.)")
 
     #TODO: add seed to pass through to infomaps
     # Infomaps arguments

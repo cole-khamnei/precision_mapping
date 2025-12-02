@@ -41,3 +41,5 @@ Outputs included parcellation and assigned brain network dlabels (`.dlabel.nii`)
 
 	[] rename? - splotch, patchwork, neuroparcel, brain_mapper, brainpatch,
 		- kit, FC
+
+	[] add citations
