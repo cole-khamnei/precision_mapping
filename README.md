@@ -25,7 +25,7 @@ pm.precision_mapping(dtseries_path, subject_id, sample_label, out_dir, overwrite
 # Example:
 Outputs included parcellation and assigned brain network dlabels (`.dlabel.nii`):
 
-![example_image](tests/outputs/example_parcellation_plot.png)
+![example_image](resources/git_repo/example_parcellation_plot.png)
 
 
 # TODO:
