@@ -49,7 +49,9 @@ NETWORK_CMAP = {
 }
 NETWORK_CMAP = {k: [v_i/255 for v_i in v] for k,v in NETWORK_CMAP.items()}
 
-# \section main argument defaults
+# ----------------------------------------------------------------------------# 
+# ---------------            Main Argument Defaults            ---------------# 
+# ----------------------------------------------------------------------------# 
 
 DEFAULT_SEED = 137
 DEFAULT_N_INFOMAPS_REPS = 50

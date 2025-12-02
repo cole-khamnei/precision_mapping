@@ -28,6 +28,7 @@ def QC_plots(parcel_partition_path, save_path):
 
     return ax
 
+
 def vertex_plot(values, template_cifti, ax=None, **kwargs):
     """ """
     values = cifti_tools.cifti_map(None, values, template_cifti)

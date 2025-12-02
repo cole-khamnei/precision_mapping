@@ -6,7 +6,9 @@ import torch
 
 from . import constants
 
-# \section multiple argument helpers
+# ----------------------------------------------------------------------------# 
+# ------------             Multiple Argument Helpers              ------------# 
+# ----------------------------------------------------------------------------# 
 
 
 def list_wrap(item, *dtypes) -> list:
@@ -32,7 +34,9 @@ def multicall(func, *args, main_dtype=str, **kwargs):
     return False
 
 
-#\section Input txt file handlers
+# ----------------------------------------------------------------------------# 
+# --------------            Input Txt File Handlers             --------------# 
+# ----------------------------------------------------------------------------# 
 
 
 def read_txt(txt_path: str) -> list:
@@ -56,7 +60,9 @@ def resolve_str_txt_list(item_list, file_ext=None):
     return item_list
 
 
-# \section printer
+# ----------------------------------------------------------------------------# 
+# --------------------              Printer               --------------------# 
+# ----------------------------------------------------------------------------# 
 
 
 class Printer:
@@ -100,7 +106,9 @@ def np_corr(x, y):
     return x_norm @ y_norm.T
 
 
-# \section device/multiprocess tools
+# ----------------------------------------------------------------------------# 
+# ------------             Device/multiprocess Tools              ------------# 
+# ----------------------------------------------------------------------------# 
 
 
 def get_available_devices():
