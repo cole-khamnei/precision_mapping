@@ -122,7 +122,7 @@ def generate_correlation_batch(cifti_paths, save_paths,
             if j < len(load_indices) - 1:
                 future_voxel_data = executor.submit(cifti_tools.load_voxel_data,
                                                     cifti_paths[load_indices[j + 1]],
-                                                    censor_files[load_indices[0]])
+                                                    censor_files[load_indices[j + 1]])
 
             if os.path.exists(save_path) and not overwrite:
                 utils.printer(f"{save_path} already exists and no '--overwrite' flag. Skipping correlation matrix creation.")
