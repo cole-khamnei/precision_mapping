@@ -40,6 +40,8 @@ def infomap_parcellation(matrix, save_path=None, num_trials=1, **kwargs):
     return index, values
 
 
+#TODO: add support for other clustering methods/parcellating methods
+
 def parcel_detection_single(corr_matrix, save_path, n_reps=1, silent=True,
                             overwrite=False, seed=137, **kwargs):
     """ """
