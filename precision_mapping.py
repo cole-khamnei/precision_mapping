@@ -32,6 +32,9 @@ def full_pipeline(dtseries_paths, subject_ids, sample_labels, out_dir,
     censor_files = None if censor_files is None else utils.list_wrap(censor_files, str)
     paths = utils.create_pm_paths(subject_ids, sample_labels, out_dir)
 
+    if silent:
+        utils.printer.mute()
+
     #TODO: add include index mapping
     functional_connectivity.generate_correlation_matrix(dtseries_paths,
                                                         paths["vertex-fc"],
@@ -54,14 +57,13 @@ def full_pipeline(dtseries_paths, subject_ids, sample_labels, out_dir,
                                              paths["network-partition"],
                                              censor_files=censor_files, 
                                              overwrite=overwrite)
-    template_cifti = dtseries_paths[0]
-    pt.write_parcel_dlabel(paths["parcel-partition"],
-                           paths["parcel-dlabel"], template_cifti)
-    pt.write_network_dlabel(paths["network-partition"],
-                            paths["network-dlabel"], template_cifti)
-    plot.QC_plots(paths["parcel-partition"], save_path=paths["qc-plot"])
+
+    o_kwargs = dict(template_cifti=dtseries_paths[0], overwrite=overwrite)
+    pt.write_parcel_dlabel(paths["parcel-partition"], paths["parcel-dlabel"], **o_kwargs)
+    pt.write_network_dlabel(paths["network-partition"], paths["network-dlabel"], **o_kwargs)
+    plot.QC_plots(paths["parcel-partition"], save_path=paths["qc-plot"], overwrite=overwrite)
     plot.parcel_plot(paths["parcel-partition"], paths["network-partition"],
-                     sample_labels, paths["parcel-plot"], template_cifti)
+                     sample_labels, paths["parcel-plot"], **o_kwargs)
     return paths
 
 

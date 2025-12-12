@@ -93,12 +93,15 @@ def assign_networks_batch(cifti_paths, partition_paths, save_paths,
     single_assign_func = lambda args: assign_networks(*args, overwrite=overwrite)
 
     results = []
-    pbar = tqdm(total=len(save_paths), desc="Assigning parcellation networks", unit="cifti")
+    gen_desc = "Assigning parcellation networks"
+    pbar = tqdm(total=len(save_paths), desc=gen_desc, unit="cifti")
     for args in arg_sets:
+        sample_label = os.path.basename(args[1]).split("_parcel")[0]
+        pbar.set_description(gen_desc + f" ({sample_label})")
         result = single_assign_func(args)
         pbar.update(1)
         results.append(result)
-
+    pbar.set_description(gen_desc)
     return results
 
 

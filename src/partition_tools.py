@@ -1,3 +1,4 @@
+import os
 import numpy as np
 
 from . import constants, cifti_tools, utils
@@ -54,10 +55,18 @@ def write_dlabel_precision_map(precision_map_values, save_path, label="", **kwar
     sfm.write_labels_to_dlabel(precision_map_labels, save_path, label_name=label, **kwargs)
 
 
-def write_parcel_dlabel(parcel_partition_path, parcel_dlabel_path, template_cifti, cmap=None):
+def write_parcel_dlabel(parcel_partition_path, parcel_dlabel_path, template_cifti,
+                        pbar=True, cmap=None, overwrite=False):
     """ """
     args = [parcel_partition_path, parcel_dlabel_path]
-    if utils.multicall(write_network_dlabel, *args, template_cifti=template_cifti, cmap=cmap):
+    kwargs = dict(overwrite=overwrite, template_cifti=template_cifti,
+                  pbar=pbar, cmap=cmap,
+                  pbar_kwargs=dict(desc="Writing parcel dlabel"))
+    if utils.multicall(write_network_dlabel, *args, **kwargs):
+        return
+
+    if os.path.exists(parcel_dlabel_path) and not overwrite:
+        utils.printer(f"{parcel_dlabel_path} already exists, skipping. Can use --overwrite to overwrite.")
         return
 
     template_cifti = cifti_tools.get_template_cifti(template_cifti)
@@ -68,10 +77,16 @@ def write_parcel_dlabel(parcel_partition_path, parcel_dlabel_path, template_cift
 
 
 def write_network_dlabel(network_partition_path, network_dlabel_path, template_cifti,
-                        cmap=constants.NETWORK_CMAP):
+                         pbar=True, cmap=constants.NETWORK_CMAP, overwrite=False):
     """ """
     args = [network_partition_path, network_dlabel_path]
-    if utils.multicall(write_network_dlabel, *args, template_cifti=template_cifti, cmap=cmap):
+    kwargs = dict(overwrite=overwrite, template_cifti=template_cifti, cmap=cmap,
+                  pbar=pbar, pbar_kwargs=dict(desc="Writing network dlabel"))
+    if utils.multicall(write_network_dlabel, *args, **kwargs):
+        return
+
+    if os.path.exists(network_dlabel_path) and not overwrite:
+        utils.printer(f"{network_dlabel_path} already exists, skipping. Can use --overwrite to overwrite.")
         return
 
     template_cifti = cifti_tools.get_template_cifti(template_cifti)

@@ -4,6 +4,8 @@ import numpy as np
 import multiprocess as mp
 import torch
 
+from tqdm.auto import tqdm
+
 from . import constants
 
 # ----------------------------------------------------------------------------# 
@@ -25,10 +27,15 @@ def check_multiple_args(args, main_dtype=str):
     return False
 
 
-def multicall(func, *args, main_dtype=str, **kwargs):
+def multicall(func, *args, main_dtype=str, pbar=False, pbar_kwargs={}, **kwargs):
     """ """
     if check_multiple_args(args, main_dtype=main_dtype):
-        np.vectorize(func)(*args, **kwargs)
+
+        if pbar:
+            for args_i in tqdm(zip(*args), total=len(args[0]), **pbar_kwargs):
+                func(*args_i, **kwargs)
+        else:
+            np.vectorize(func)(*args, **kwargs)
         return True
 
     return False

@@ -1,3 +1,5 @@
+import os
+
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
@@ -11,9 +13,15 @@ from . import partition_tools as pt
 # ----------------------------------------------------------------------------# 
 
 
-def QC_plots(parcel_partition_path, save_path):
+def QC_plots(parcel_partition_path, save_path, close=True, overwrite=False):
     """ """
-    if utils.multicall(QC_plots, parcel_partition_path, save_path):
+    mc_kwargs = dict(overwrite=overwrite, close=close, pbar=True,
+                     pbar_kwargs=dict(desc="Generating QC plots"))
+    if utils.multicall(QC_plots, parcel_partition_path, save_path, **mc_kwargs):
+        return
+
+    if os.path.exists(save_path) and not overwrite:
+        utils.printer(f"{save_path} already exists, skipping. Can use --overwrite to overwrite.")
         return
 
     index, groups = np.load(parcel_partition_path)
@@ -26,7 +34,8 @@ def QC_plots(parcel_partition_path, save_path):
     ax.legend(title="")
     fig.savefig(save_path, bbox_inches="tight", pad_inches=0.1)
 
-    return ax
+    if close:
+        plt.close()
 
 
 def vertex_plot(values, template_cifti, ax=None, **kwargs):
@@ -38,10 +47,16 @@ def vertex_plot(values, template_cifti, ax=None, **kwargs):
 
 
 def parcel_plot(parcel_partition_path, network_partition_path, sample_label,
-                save_path, template_cifti, close=True):
+                save_path, template_cifti, close=True, overwrite=False):
     """ """
     args = [parcel_partition_path, network_partition_path, sample_label, save_path]
-    if utils.multicall(parcel_plot, *args, template_cifti=template_cifti, close=close):
+    mc_kwargs = dict(overwrite=overwrite, template_cifti=template_cifti, close=close, pbar=True,
+                     pbar_kwargs=dict(desc="Generating parcel plots"))
+    if utils.multicall(parcel_plot, *args, **mc_kwargs):
+        return
+
+    if os.path.exists(save_path) and not overwrite:
+        utils.printer(f"{save_path} already exists, skipping. Can use --overwrite to overwrite.")
         return
 
     template_cifti = cifti_tools.get_template_cifti(template_cifti)
