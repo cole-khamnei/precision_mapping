@@ -41,4 +41,8 @@ Outputs included parcellation and assigned brain network dlabels (`.dlabel.nii`)
 	[] rename? - patchwork-PRF, splotch, patchwork, neuroparcel, brain_mapper, brainpatch,
 		- kit, FC
 	[] add citations!
+	[] add tqdm to plot making
+	[] add plt.close() for QC plot?
+	[] consider changing print path exists when lots of files already exist?
 
+	[] change cmap colors for network parcel plot
