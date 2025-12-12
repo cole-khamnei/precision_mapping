@@ -32,6 +32,7 @@ Outputs included parcellation and assigned brain network dlabels (`.dlabel.nii`)
 ## Shareable package todos:
 	[] smoothing distance mask: check?
 	[] add exclude cortex filters
+	[] add functions to calculate cortical area of networks
 
 
 ### minor todos:
@@ -44,3 +45,8 @@ Outputs included parcellation and assigned brain network dlabels (`.dlabel.nii`)
 	[] consider changing print path exists when lots of files already exist?
 
 	[] change cmap colors for network parcel plot
+
+	[] add parcellate func, which specifies parcellate method (infomaps, kmeans, etc)
+		[] infomaps_parcellate would wrap sparse_vFC + infomaps
+		[] kmeans_parcellate would just implement kmeans parcellating
+		[] others?

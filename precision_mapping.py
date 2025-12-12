@@ -36,6 +36,7 @@ def full_pipeline(dtseries_paths, subject_ids, sample_labels, out_dir,
         utils.printer.mute()
 
     #TODO: add include index mapping
+    #TODO: wrap this in parcellate func, which specifies parcellate method (infomaps, kmeans, etc)
     functional_connectivity.generate_correlation_matrix(dtseries_paths,
                                                         paths["vertex-fc"],
                                                         censor_file=censor_files,
