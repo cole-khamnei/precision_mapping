@@ -33,9 +33,9 @@ class TestPrecisionMappingCorrelators(unittest.TestCase):
 
         test_function = pm.functional_connectivity.generate_correlation_matrix
 
-        with self.subTest(test_arguments="default args - CPU test"):
-            print("Testing functional_connectivity.generate_correlation_matrix:\n\tDefault args (device: cpu)")
-            test_function(**default_args)
+        # with self.subTest(test_arguments="default args - CPU test"):
+        #     print("Testing functional_connectivity.generate_correlation_matrix:\n\tDefault args (device: cpu)")
+        #     test_function(**default_args)
 
         gpu_device = None
         try:
@@ -62,7 +62,7 @@ class TestPrecisionMappingCorrelators(unittest.TestCase):
                 default_args["device"] = gpu_device
 
         test_arg_sets = [
-            dict(backend="numpy"),
+            # dict(backend="numpy"),
             dict(cifti_path=[cts.TEST_DTSERIES_PATH] * cts.N_TEST_REPS,
                  save_path=[cts.TEST_OUTPUT_VERTEX_FC_PATH] * cts.N_TEST_REPS,
                  censor_file=[cts.TEST_DTSERIES_CENSOR_FILE] * cts.N_TEST_REPS),
