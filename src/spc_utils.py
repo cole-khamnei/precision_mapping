@@ -1,5 +1,4 @@
 import numpy as np
-import torch
 import scipy
 
 from typing import Union
