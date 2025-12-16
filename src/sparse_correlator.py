@@ -40,8 +40,7 @@ class BlockAnalysis:
         """
 
         """
-        backend = spc_utils.get_backend(backend)
-
+        backend = spc_utils.get_backend(backend) # essential to ensure it defaults to np if no torch
         aggregator = cls(data, backend=backend, device=device, symmetric=symmetric, **block_params)
         device_info = spc_utils.get_device_info(backend, device)
 

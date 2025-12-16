@@ -106,8 +106,10 @@ def to_np(array):
     """ """
     if isinstance(array, tuple):
         return [to_np(ar) for ar in array]
-    if isinstance(array, torch.Tensor):
-        return array.cpu().numpy()
+
+    if "torch" in AVAILABLE_BACKENDS:
+        if isinstance(array, torch.Tensor):
+            return array.cpu().numpy()
     return np.array(array)
 
 # ----------------------------------------------------------------------------# 
