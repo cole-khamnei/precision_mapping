@@ -1,6 +1,7 @@
 from .src import *
 from .src import constants
 from .src import utils
+from .src import spc_utils
 from .src import plot
 from .src import cifti_tools
 from .src import partition_tools

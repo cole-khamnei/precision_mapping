@@ -110,6 +110,7 @@ def to_np(array):
     if "torch" in AVAILABLE_BACKENDS:
         if isinstance(array, torch.Tensor):
             return array.cpu().numpy()
+
     return np.array(array)
 
 # ----------------------------------------------------------------------------# 

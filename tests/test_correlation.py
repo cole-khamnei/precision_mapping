@@ -33,41 +33,23 @@ class TestPrecisionMappingCorrelators(unittest.TestCase):
 
         test_function = pm.functional_connectivity.generate_correlation_matrix
 
-        # with self.subTest(test_arguments="default args - CPU test"):
-        #     print("Testing functional_connectivity.generate_correlation_matrix:\n\tDefault args (device: cpu)")
-        #     test_function(**default_args)
+        with self.subTest(test_arguments="default args - CPU test"):
+            print("Testing functional_connectivity.generate_correlation_matrix:\n\tDefault args (device: cpu)")
+            test_function(**default_args)
 
-        gpu_device = None
-        try:
-            import torch
-            try:
-                if torch.mps.is_available():
-                    gpu_device = "mps"
-            except:
-                pass
-            try:
-                if torch.cuda.is_available():
-                    gpu_device = "cuda"
-            except:
-                pass
-        except:
-            pass
+        test_arg_sets = []
+        if "torch" in pm.spc_utils.AVAILABLE_BACKENDS:
+            test_arg_sets.append(dict(backend="numpy"))
 
+        devs = pm.spc_utils.get_available_devices()
+        gpu_device = devs[0] if len(devs) > 1 else None
         if gpu_device:
-            device_args = dict(device=gpu_device)
-            with self.subTest(test_arguments=f"default args - {gpu_device} test"):
-                print(f"Testing functional_connectivity.generate_correlation_matrix:\n\tdevice = {gpu_device}")
-                test_function(**{**default_args, **device_args})
-                print(f"{gpu_device} passed tests, using as default for future tests.")
-                default_args["device"] = gpu_device
+            test_arg_sets.append(dict(device=gpu_device))
 
-        test_arg_sets = [
-            # dict(backend="numpy"),
-            dict(cifti_path=[cts.TEST_DTSERIES_PATH] * cts.N_TEST_REPS,
-                 save_path=[cts.TEST_OUTPUT_VERTEX_FC_PATH] * cts.N_TEST_REPS,
-                 censor_file=[cts.TEST_DTSERIES_CENSOR_FILE] * cts.N_TEST_REPS),
-        ]
-        
+        test_arg_sets.append(dict(cifti_path=[cts.TEST_DTSERIES_PATH] * cts.N_TEST_REPS,
+                                  save_path=[cts.TEST_OUTPUT_VERTEX_FC_PATH] * cts.N_TEST_REPS,
+                                  censor_file=[cts.TEST_DTSERIES_CENSOR_FILE] * cts.N_TEST_REPS))
+
         for test_args in test_arg_sets:
             print(f"Testing functional_connectivity.generate_correlation_matrix:\n\tArgs: {test_args}")
             with self.subTest(test_arguments=test_args):
