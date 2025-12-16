@@ -2,9 +2,12 @@ import os
 
 import numpy as np
 import multiprocess as mp
-import torch
-
 from tqdm.auto import tqdm
+
+# try:
+#     import torch
+# except:
+#     pass
 
 from . import constants
 
@@ -118,14 +121,14 @@ def np_corr(x, y):
 # ----------------------------------------------------------------------------# 
 
 
-def get_available_devices():
-    """ """
-    devices = ["cpu"]
-    if torch.mps.is_available():
-        devices.append("mps")
-    if torch.cuda.is_available():
-        devices.append("cuda")
-    return devices[::-1]
+# def get_available_devices():
+#     """ """
+#     devices = ["cpu"]
+#     if torch.mps.is_available():
+#         devices.append("mps")
+#     if torch.cuda.is_available():
+#         devices.append("cuda")
+#     return devices[::-1]
 
 
 def get_n_cores(n_cores=None, cpu_offset=1):

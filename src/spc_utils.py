@@ -6,7 +6,14 @@ from typing import Union
 
 Module = None
 
-VALID_BACKENDS = {"numpy": np, "torch": torch}
+VALID_BACKENDS = ["numpy", "torch"]
+AVAILABLE_BACKENDS = {"numpy": np}
+
+try:
+    import torch
+    AVAILABLE_BACKENDS["torch"] = torch
+except:
+    pass
 
 # ----------------------------------------------------------------------------# 
 # --------------------          Backend Helpers           --------------------# 
@@ -24,7 +31,7 @@ def get_backend_name(backend: Union[str, Module]) -> str:
 def assert_valid_backend(backend: Union[str, Module]) -> None:
     """"""
     backend_name = get_backend_name(backend)
-    assert backend_name in VALID_BACKENDS, f"Invalid backend '{backend_name}', valid options are {VALID_BACKENDS.keys()}"
+    assert backend_name in VALID_BACKENDS, f"Invalid backend '{backend_name}', valid options are {AVAILABLE_BACKENDS.keys()}"
 
 
 def check_backend(backend: Union[str, Module], name) -> bool:
@@ -38,7 +45,7 @@ def get_backend(backend: Union[str, Module]) -> Module:
     
     assert_valid_backend(backend)
     if isinstance(backend, str):
-        return VALID_BACKENDS[backend]
+        return AVAILABLE_BACKENDS.get(backend, AVAILABLE_BACKENDS["numpy"])
 
     return backend
 
@@ -46,10 +53,16 @@ def get_backend(backend: Union[str, Module]) -> Module:
 def get_available_devices():
     """ """
     devices = ["cpu"]
-    if torch.mps.is_available():
-        devices.append("mps")
-    if torch.cuda.is_available():
-        devices.append("cuda")
+    try:
+        if torch.mps.is_available():
+            devices.append("mps")
+    except:
+        pass
+    try:
+        if torch.cuda.is_available():
+            devices.append("cuda")
+    except:
+        pass
     return devices[::-1]
 
 

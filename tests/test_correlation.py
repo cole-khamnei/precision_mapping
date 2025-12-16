@@ -37,8 +37,20 @@ class TestPrecisionMappingCorrelators(unittest.TestCase):
             print("Testing functional_connectivity.generate_correlation_matrix:\n\tDefault args (device: cpu)")
             test_function(**default_args)
 
-        import torch
-        gpu_device = "mps" if torch.mps.is_available() else "cuda" if torch.cuda.is_available() else None
+        try:
+            import torch
+            try:
+                if torch.mps.is_available():
+                    gpu_device = "mps"
+            except:
+                pass
+            try:
+                if torch.cuda.is_available():
+                    gpu_device = "cuda"
+            except:
+                pass
+        except:
+            gpu_device = None
 
         if gpu_device:
             device_args = dict(device=gpu_device)
