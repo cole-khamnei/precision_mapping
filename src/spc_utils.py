@@ -86,6 +86,7 @@ def get_device_info(backend: Union[str, Module], device) -> dict:
 def backend_array(backend: Union[str, Module]):
     """ """
     backend_name = get_backend_name(backend)
+    print(backend_name)
     if backend_name == "numpy":
         return np.array
 
