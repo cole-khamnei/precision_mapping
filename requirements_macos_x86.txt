@@ -1,0 +1,9 @@
+infomap==2.8.0
+matplotlib==3.10.7
+multiprocess==0.70.18
+nibabel==5.3.2
+numpy==2.3.5
+scipy==1.16.3
+seaborn==0.13.2
+surfplot==0.2.0
+tqdm==4.67.1
