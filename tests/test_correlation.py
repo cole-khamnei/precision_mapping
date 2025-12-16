@@ -37,6 +37,7 @@ class TestPrecisionMappingCorrelators(unittest.TestCase):
             print("Testing functional_connectivity.generate_correlation_matrix:\n\tDefault args (device: cpu)")
             test_function(**default_args)
 
+        gpu_device = None
         try:
             import torch
             try:
@@ -50,7 +51,7 @@ class TestPrecisionMappingCorrelators(unittest.TestCase):
             except:
                 pass
         except:
-            gpu_device = None
+            pass
 
         if gpu_device:
             device_args = dict(device=gpu_device)
