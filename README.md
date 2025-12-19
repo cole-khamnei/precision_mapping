@@ -6,7 +6,7 @@ A python based individualized fMRI brain parcellation package based on [src *** 
 Download git repo
 
 ```
-git clone git@github.com:cole-khamnei/precision_mapping.git
+git clone git@github.com:dsclab42/precision_mapping.git
 ```
 
 Example Usage:
@@ -33,6 +33,10 @@ Outputs included parcellation and assigned brain network dlabels (`.dlabel.nii`)
 	[] smoothing distance mask: check?
 	[] add exclude cortex filters
 	[] add functions to calculate cortical area of networks
+
+	[] update readme to show better use case
+	[] update argparse --help
+	[] make sure distance mask can use "None"
 
 
 ### minor todos:

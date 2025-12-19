@@ -12,6 +12,8 @@ from precision_mapping import partition_tools as pt
 from precision_mapping.tests import constants_test_suite as cts
 
 
+OVERWRITE = True
+
 class TestWriteOutputs(unittest.TestCase):
     """ """
 
@@ -19,6 +21,7 @@ class TestWriteOutputs(unittest.TestCase):
         """ """
         pt.write_parcel_dlabel(cts.TEST_SUPPLIED_PARCEL_PARTITION_PATH,
                                cts.TEST_OUTPUT_PARCEL_DLABEL_PATH,
+                               overwrite=OVERWRITE,
                                template_cifti=cts.TEST_DTSERIES_PATH)
 
 
@@ -26,6 +29,7 @@ class TestWriteOutputs(unittest.TestCase):
         """ """
         pt.write_network_dlabel(cts.TEST_SUPPLIED_NETWORK_PARTITION_PATH,
                                 cts.TEST_OUTPUT_NETWORK_DLABEL_PATH,
+                                overwrite=OVERWRITE,
                                 template_cifti=cts.TEST_DTSERIES_PATH)
 
     def test_parcel_plot(self):
@@ -35,12 +39,14 @@ class TestWriteOutputs(unittest.TestCase):
         pm.plot.parcel_plot(cts.TEST_SUPPLIED_PARCEL_PARTITION_PATH,
                             cts.TEST_SUPPLIED_NETWORK_PARTITION_PATH,
                             sample_label,cts.TEST_OUTPUT_PARCEL_PLOT_PATH,
+                            overwrite=OVERWRITE,
                             template_cifti=cts.TEST_DTSERIES_PATH)
 
     def test_qc_plot(self):
         """ """
         pm.plot.QC_plots(cts.TEST_SUPPLIED_PARCEL_PARTITION_PATH,
-                                       cts.TEST_OUTPUT_QC_PLOT_PATH)
+                         cts.TEST_OUTPUT_QC_PLOT_PATH,
+                         overwrite=OVERWRITE,)
 
 
 if __name__ == "__main__":

@@ -54,8 +54,8 @@ class TestPipeline(unittest.TestCase):
 
     def test_full_pipeline(self):
         """ """
-        if cts.SKIP_FULL_PIPELINE_TEST:
-            return
+        # if cts.SKIP_FULL_PIPELINE_TEST:
+        #     return
 
         pm.precision_mapping(cts.TEST_DTSERIES_PATH, cts.TEST_SUBJECT_ID,
                              cts.TEST_SAMPLE_LABEL, TEST_DIR_PATH,
@@ -75,8 +75,8 @@ class TestPipeline(unittest.TestCase):
 
     def test_main_txt_input(self):
         """ """
-        # if cts.SKIP_FULL_PIPELINE_TEST:
-        #     return
+        if cts.SKIP_FULL_PIPELINE_TEST:
+            return
 
         pm.main(test_args=["-c", cts.TEST_DTSERIES_LIST_PATH,
                            "-o", TEST_DIR_PATH,
