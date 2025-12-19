@@ -47,7 +47,8 @@ BRAIN_DISTANCE_DIR = f"{RESOURCES_DIR}/brain_distances"
 def get_geodesic_distance_mask_path(distance):
     return f"{BRAIN_DISTANCE_DIR}/geodesic_mask_{distance}.npz"
 
-DEFAULT_MASK = get_geodesic_distance_mask_path(30)
+# DEFAULT_MASK = get_geodesic_distance_mask_path(30)
+DEFAULT_MASK = None
 
 # ----------------------------------------------------------------------------# 
 # ---------------            Main Argument Defaults            ---------------# 

@@ -181,8 +181,9 @@ class SparseAggregator(BlockAnalysis):
         if mask is not None:
             mask_chunk = mask[a_index, b_index]
             if spc_utils.get_nnz_safe(mask_chunk) > 0:
-                # takes mask as bool, inverts (1/true specificies discard)
-                mask_flat = ~spc_utils.sparse_to_array(mask_chunk.astype(bool)).ravel()
+                # takes mask as bool, inverts (1/true specifies discard)
+                # TODO: Determine if there is issue here, or in npz file, or somewhere else?
+                mask_flat = ~spc_utils.sparse_to_array(mask_chunk.astype(bool)).flatten()
                 mask_flat = spc_utils.to_backend(backend, mask_flat, dtype=bool, **self.device_info)
                 threshold_chunk_tv_index &= mask_flat
 
