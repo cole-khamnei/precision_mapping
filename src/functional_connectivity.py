@@ -29,6 +29,9 @@ def generate_voxel_FC(voxel_data,
     if str(mask).isdigit():
         mask = constants.get_geodesic_distance_mask_path(int(mask))
 
+
+    mask = f"{constants.BRAIN_DISTANCE_DIR}/mask_test.npz" if mask is not None else None
+
     mask = scipy.sparse.load_npz(mask) if mask else None
 
     # TODO: Fix masking related issues

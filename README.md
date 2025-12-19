@@ -31,6 +31,7 @@ Outputs included parcellation and assigned brain network dlabels (`.dlabel.nii`)
 # TODO:
 ## Shareable package todos:
 	[] smoothing distance mask: check?
+		[] failing
 	[] add exclude cortex filters
 	[] add functions to calculate cortical area of networks
 
