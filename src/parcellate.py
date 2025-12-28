@@ -67,11 +67,14 @@ def parcel_detection(corr_matrix, save_path, n_cores=None, silent=True,
     arg_sets = zip(corr_matrices, save_paths)
     single_parcel_func = lambda args: parcel_detection_single(args[0], args[1], silent=silent, **parcellating_kwargs)
     desc = "Running infomap parcel detection"
-    n_cores = utils.get_n_cores(n_cores)
-    with mp.Pool(n_cores) as p:
-        results = []
-        for result in tqdm(p.imap(single_parcel_func, arg_sets), total=len(save_paths), desc=desc):
-            results.append(result)
+
+    results = [single_parcel_func(arg_set) for arg_set in tqdm(arg_sets, total=len(save_paths), desc=desc)]
+
+    # n_cores = utils.get_n_cores(n_cores)
+    # with mp.Pool(n_cores) as p:
+    #     results = []
+    #     for result in tqdm(p.imap(single_parcel_func, arg_sets), total=len(save_paths), desc=desc):
+    #         results.append(result)
 
     return results
     
