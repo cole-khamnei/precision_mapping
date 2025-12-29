@@ -102,6 +102,7 @@ def assign_networks_batch(cifti_paths, partition_paths, save_paths,
         pbar.update(1)
         results.append(result)
     pbar.set_description(gen_desc)
+    pbar.close()
     return results
 
 
