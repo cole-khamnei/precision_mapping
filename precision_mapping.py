@@ -121,7 +121,7 @@ def get_arguments(test_args: list = None):
                         help="Paths to dat files for frame sensoring or txt file (inclusion list - with 1s being include and in a row or column tsv form.)")
 
     # Cluster method:
-    parser.add_argument("--method", dest='method', choices=["infomaps", "kmeans"], default="infomaps-fc",
+    parser.add_argument("--method", dest='method', choices=["infomaps", "kmeans"], default="infomaps",
                         help="Clustering method options: 'infomaps', 'kmeans'")
     parser.add_argument("--k-parcels", "-k", dest='k_parcels', action="store", type=int,
                         default=constants.DEFAULT_K_PARCELS, help="K number of parcels (for kmeans method)")
