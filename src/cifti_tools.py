@@ -1,6 +1,8 @@
 import numpy as np
 import nibabel as nb
 
+from . import constants
+
 # ----------------------------------------------------------------------------# 
 # --------------------           Cifti Helpers            --------------------# 
 # ----------------------------------------------------------------------------# 
@@ -35,8 +37,11 @@ def load_voxel_data(dtseries_paths, censor_file=None, dtype="float32"):
     return voxel_data
 
 
-def get_template_cifti(template_cifti):
+def get_template_cifti(template_cifti=None):
     """ """
+    if template_cifti is None:
+        return nb.load(constants.TEMPLATE_CIFTI_PATH)
+
     if isinstance(template_cifti, str):
         template_cifti = nb.load(template_cifti)
 

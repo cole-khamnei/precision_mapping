@@ -13,6 +13,19 @@ from . import partition_tools as pt
 # ----------------------------------------------------------------------------# 
 
 
+def plot_reference_vertex_surface_area(ax=None, **vertex_sa_map_kwargs):
+    """ """
+
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(12, 4))
+
+    SA_ref_values, _, SA_ref_cortex = sfm.get_vertex_surface_area_maps(**vertex_sa_map_kwargs)
+    ax, _ = sfm.surface_plot(SA_ref_values, cmap=plt.cm.Spectral_r, ax=ax,
+                             color_range=[np.round(np.percentile(SA_ref_cortex, 1), 0), 
+                                          np.round(np.percentile(SA_ref_cortex, 99), 0)])
+    ax.set_title("Reference Vertex Surface Area")
+
+
 def QC_plots(parcel_partition_path, save_path, close=True, overwrite=False):
     """ """
     mc_kwargs = dict(overwrite=overwrite, close=close, pbar=True,

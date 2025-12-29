@@ -87,10 +87,10 @@ def kmeans_parcel_detection(dtseries_paths, parcel_save_paths, censor_files,
             subcortex_indices = indices >= 59_412
             indices, voxel_data = indices[~subcortex_indices], voxel_data[:, ~subcortex_indices]
 
-            kmeans_l = KMeans(n_clusters=n_parcels + 1, random_state=seed).fit(voxel_data.T[:29_696])
-            kmeans_r = KMeans(n_clusters=n_parcels + 1, random_state=seed).fit(voxel_data.T[29_696:59_412])
+            kmeans_l = KMeans(n_clusters=n_parcels, random_state=seed).fit(voxel_data.T[:29_696])
+            kmeans_r = KMeans(n_clusters=n_parcels, random_state=seed).fit(voxel_data.T[29_696:59_412])
 
-            labels = np.hstack([kmeans_l.labels_, kmeans_r.labels_])
+            labels = np.hstack([kmeans_l.labels_, kmeans_r.labels_ + n_parcels])
             save_partition(indices, labels, parcel_save_path)
         else:
             kmeans = KMeans(n_clusters=n_parcels + 1, random_state=seed, n_init="auto").fit(voxel_data.T)

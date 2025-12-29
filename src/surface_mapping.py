@@ -7,8 +7,10 @@ import matplotlib as mpl
 import numpy as np
 import nibabel as nb
 import surfplot as sfp
+import dill as pickle
 
 from . import constants
+from . import cifti_tools
 
 # ----------------------------------------------------------------------------# 
 # --------------------             Constants              --------------------# 
@@ -177,6 +179,73 @@ def add_surface_to_ax(ax, p: sfp.Plot, cbar=True):
     x = pz.to_numpy(transparent_bg=True, scale=(2, 2))
     ax.imshow(x)
     ax.axis("off")
+
+
+# \section calculating surface areas
+
+
+def get_vertex_surface_area(surface_file):
+    # Load the GIFTI surface file
+    gii = nb.load(surface_file)
+    
+    # Get the vertices and faces
+    vertices = gii.darrays[0].data
+    faces = gii.darrays[1].data
+
+    # Compute surface area for each triangle
+    tri_vertices = vertices[faces]
+    a = tri_vertices[:, 1] - tri_vertices[:, 0]
+    b = tri_vertices[:, 2] - tri_vertices[:, 0]
+    cross_product = np.cross(a, b)
+    triangle_areas = 0.5 * np.linalg.norm(cross_product, axis=1)
+
+    # Distribute triangle areas to vertices
+    vertex_areas = np.zeros(vertices.shape[0])
+    for i in range(3):
+        np.add.at(vertex_areas, faces[:, i], triangle_areas / 3)
+
+    return vertex_areas
+
+
+def calculate_vertex_surface_areas(template_cifti=None, surface_files=SURFACES["midthickness"]):
+    """ """
+    template_cifti = cifti_tools.get_template_cifti(template_cifti)
+
+    medial_wall_mask_values = cifti_tools.cifti_map(None, np.ones(59412), template_cifti)
+    medial_wall_mask_L = np.isnan(medial_wall_mask_values["left"])
+    medial_wall_mask_R = np.isnan(medial_wall_mask_values["right"])
+    medial_wall_mask_64k = np.hstack([medial_wall_mask_L, medial_wall_mask_R])
+
+    L_SA_ref_32k = get_vertex_surface_area(surface_files[0])
+    L_SA_ref_32k[medial_wall_mask_L] = np.nan
+    R_SA_ref_32k = get_vertex_surface_area(surface_files[1])
+    R_SA_ref_32k[medial_wall_mask_R] = np.nan
+    
+    SA_ref_values = {"left": L_SA_ref_32k, "right": R_SA_ref_32k}
+    SA_ref_64k = np.hstack([L_SA_ref_32k, R_SA_ref_32k])
+    SA_ref_cortex = SA_ref_64k[~medial_wall_mask_64k]
+
+    return SA_ref_values, SA_ref_64k, SA_ref_cortex
+
+
+def get_vertex_surface_area_maps(template_cifti=None, surface_files=None):
+    """ """
+    template_cifti = cifti_tools.get_template_cifti(template_cifti)
+
+    if surface_files is not None:
+        assert template_cifti is not None
+        return calculate_vertex_surface_areas(template_cifti, surface_files=surface_files)
+
+    if not os.path.exists(constants.VERTEX_SURFACE_AREA_REFERENCE_PATH):
+        print(f"{constants.VERTEX_SURFACE_AREA_REFERENCE_PATH} not found, creating new reference.")
+        SA_ref_values, SA_ref_64k, SA_ref_cortex = calculate_vertex_surface_areas(template_cifti)
+        with open(constants.VERTEX_SURFACE_AREA_REFERENCE_PATH, "wb") as file:
+            pickle.dump((SA_ref_values, SA_ref_64k, SA_ref_cortex), file)
+    else:
+        with open(constants.VERTEX_SURFACE_AREA_REFERENCE_PATH, "rb") as file:
+            SA_ref_values, SA_ref_64k, SA_ref_cortex = pickle.load(file)
+
+    return SA_ref_values, SA_ref_64k, SA_ref_cortex
 
 
 # ----------------------------------------------------------------------------# 

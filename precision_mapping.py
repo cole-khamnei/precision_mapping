@@ -81,6 +81,7 @@ def full_pipeline(dtseries_paths, subject_ids, sample_labels, out_dir,
     o_kwargs = dict(template_cifti=dtseries_paths[0], overwrite=overwrite)
     pt.write_parcel_dlabel(paths["parcel-partition"], paths["parcel-dlabel"], **o_kwargs)
     pt.write_network_dlabel(paths["network-partition"], paths["network-dlabel"], **o_kwargs)
+    pt.calculate_network_surface_areas(paths["network-partition"], paths["network-size-csv"], **o_kwargs)
     plot.QC_plots(paths["parcel-partition"], save_path=paths["qc-plot"], overwrite=overwrite)
     plot.parcel_plot(paths["parcel-partition"], paths["network-partition"],
                      sample_labels, paths["parcel-plot"], **o_kwargs)

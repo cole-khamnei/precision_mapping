@@ -33,6 +33,7 @@ Outputs included parcellation and assigned brain network dlabels (`.dlabel.nii`)
 	[] smoothing distance mask: check?
 		[] failing
 	[] add exclude cortex filters
+	[] kmeans split number should be half per hemisphere
 	[] add functions to calculate cortical area of networks
 
 	[] update readme to show better use case
