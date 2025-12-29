@@ -13,30 +13,10 @@ from src import partition_tools as pt
 # ----------------------------------------------------------------------------# 
 
 
-def full_pipeline(dtseries_paths, subject_ids, sample_labels, out_dir,
-                  censor_files=None,
-                  overwrite=False,
-                  silent=True,
-                  sparsity=constants.DEFAULT_FC_SPARSITY,
-                  mask=constants.DEFAULT_MASK,
-                  backend="torch",
-                  device="default",
-                  block_size=constants.DEFAULT_BLOCK_SIZE,
-                  seed=constants.DEFAULT_SEED,
-                  n_cores=constants.DEFAULT_N_CORES,
-                  n_infomaps_reps=constants.DEFAULT_N_INFOMAPS_REPS):
+def infomaps_parcel_detection(dtseries_paths, paths, censor_files, sparsity,
+                              mask, block_size, overwrite, backend, device,
+                              n_cores, n_infomaps_reps, silent, seed, **kwargs):
     """ """
-    dtseries_paths = utils.list_wrap(dtseries_paths, str)
-    subject_ids = utils.list_wrap(subject_ids, str)
-    sample_labels = utils.list_wrap(sample_labels, str)
-    censor_files = None if censor_files is None else utils.list_wrap(censor_files, str)
-    paths = utils.create_pm_paths(subject_ids, sample_labels, out_dir)
-
-    if silent:
-        utils.printer.mute()
-
-    #TODO: add include index mapping
-    #TODO: wrap this in parcellate func, which specifies parcellate method (infomaps, kmeans, etc)
     functional_connectivity.generate_correlation_matrix(dtseries_paths,
                                                         paths["vertex-fc"],
                                                         censor_file=censor_files,
@@ -53,6 +33,45 @@ def full_pipeline(dtseries_paths, subject_ids, sample_labels, out_dir,
                                 overwrite=overwrite,
                                 silent=silent,
                                 seed=seed)
+
+
+def full_pipeline(dtseries_paths, subject_ids, sample_labels, out_dir,
+                  censor_files=None,
+                  overwrite=False,
+                  silent=True,
+                  method="infomaps",
+                  sparsity=constants.DEFAULT_FC_SPARSITY,
+                  mask=constants.DEFAULT_MASK,
+                  backend="torch",
+                  device="default",
+                  block_size=constants.DEFAULT_BLOCK_SIZE,
+                  seed=constants.DEFAULT_SEED,
+                  n_cores=constants.DEFAULT_N_CORES,
+                  n_infomaps_reps=constants.DEFAULT_N_INFOMAPS_REPS,
+                  n_parcels=constants.DEFAULT_K_PARCELS):
+    """ """
+    dtseries_paths = utils.list_wrap(dtseries_paths, str)
+    subject_ids = utils.list_wrap(subject_ids, str)
+    sample_labels = utils.list_wrap(sample_labels, str)
+    censor_files = None if censor_files is None else utils.list_wrap(censor_files, str)
+    
+    paths = utils.create_pm_paths(subject_ids, sample_labels, out_dir, method=method)
+
+    if silent:
+        utils.printer.mute()
+
+    #TODO: add include index mapping
+    #TODO: wrap this in parcellate func, which specifies parcellate method (infomaps, kmeans, etc)
+
+    if method == "infomaps":
+        infomaps_parcel_detection(dtseries_paths, paths, censor_files, sparsity, mask, block_size,
+                                  overwrite, backend, device, n_cores, n_infomaps_reps, silent, seed)
+    elif method == "kmeans":
+        parcellate.kmeans_parcel_detection(dtseries_paths, paths["parcel-partition"],
+                                           censor_files, overwrite, seed, n_parcels)
+    else:
+        raise NotImplementedError(f"invalid method: '{method}'")
+
     network_assignment.assign_networks_batch(dtseries_paths,
                                              paths["parcel-partition"],
                                              paths["network-partition"],
@@ -101,7 +120,13 @@ def get_arguments(test_args: list = None):
     parser.add_argument("--censor-files", dest='censor_files', action="extend", nargs="+",
                         help="Paths to dat files for frame sensoring or txt file (inclusion list - with 1s being include and in a row or column tsv form.)")
 
-    #TODO: add seed to pass through to infomaps
+    # Cluster method:
+    parser.add_argument("--method", dest='method', choices=["infomaps", "kmeans"], default="infomaps-fc",
+                        help="Clustering method options: 'infomaps', 'kmeans'")
+    parser.add_argument("--k-parcels", "-k", dest='k_parcels', action="store", type=int,
+                        default=constants.DEFAULT_K_PARCELS, help="K number of parcels (for kmeans method)")
+
+    #TODO: add seed to pass through to infomaps/other clustering algorithm
     # Infomaps arguments
     parser.add_argument("--seed", dest='seed', action="store", type=int,
                         default=constants.DEFAULT_SEED, help="Random seed")
@@ -161,6 +186,7 @@ def main(test_args=None):
                   censor_files=args.censor_files,
                   overwrite=args.overwrite,
                   silent=not args.verbose,
+                  method=args.method,
                   sparsity=args.sparsity,
                   mask=args.mask,
                   n_infomaps_reps=args.n_reps,
@@ -168,7 +194,8 @@ def main(test_args=None):
                   block_size=args.block_size, 
                   device=args.device,
                   backend=args.backend,
-                  n_cores=args.n_cores)
+                  n_cores=args.n_cores,
+                  n_parcels=args.k_parcels)
 
 
 if __name__ == '__main__':

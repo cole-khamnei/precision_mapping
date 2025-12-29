@@ -19,12 +19,13 @@ def generate_voxel_FC(voxel_data,
                       save_path=None,
                       sparsity=0.1,
                       exclude_index_path=None,
+                      filter_subcortex=True,
                       mask=None,
                       block_size=5_000,
                       leave=True,
                       **SC_kwargs):
     """ """
-    exclude_index = np.load(exclude_index_path) if exclude_index_path else None
+    
 
     if str(mask).isdigit():
         mask = constants.get_geodesic_distance_mask_path(int(mask))
@@ -39,6 +40,13 @@ def generate_voxel_FC(voxel_data,
 
     # TODO: Fix masking related issues
     # TODO: add infomaps check, to insure that at least a certain percent of vertices have connections
+
+    if exclude_index_path:
+        exclude_index = np.load(exclude_index_path)
+    elif filter_subcortex:
+        exclude_index = np.arange(voxel_data.shape[1]) >= 59_412
+    else:
+        exclude_index = None
 
     sc = SparseCorrelator.run(voxel_data, sparsity_percent=sparsity, symmetric=True,
                               mask=mask, exclude_index=exclude_index,

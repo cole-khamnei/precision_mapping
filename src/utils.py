@@ -135,12 +135,13 @@ def assert_exists(path):
     assert os.path.exists(path), f"'{path}' does not exist."
 
 
-def create_pm_paths(subject_ids, sample_labels, precision_maps_out_dir):
+def create_pm_paths(subject_ids, sample_labels, precision_maps_out_dir, method="infomaps"):
     """ """
     assert_exists(precision_maps_out_dir)
     subject_ids = list_wrap(subject_ids, str)
     sample_labels = list_wrap(sample_labels, str)
 
+    pm_tag = "_kms" if method == "kmeans" else ""
 
     path_sets = {output: [] for output in constants.OUTPUT_FILE_ENDINGS.keys()}
     for subject_id, sample_label in zip(subject_ids, sample_labels):
@@ -149,7 +150,7 @@ def create_pm_paths(subject_ids, sample_labels, precision_maps_out_dir):
             os.mkdir(subject_pm_dir)
 
         for output, file_ending in constants.OUTPUT_FILE_ENDINGS.items():
-            path_sets[output].append(f"{subject_pm_dir}/{sample_label}_{file_ending}")
+            path_sets[output].append(f"{subject_pm_dir}/{sample_label}{pm_tag}_{file_ending}")
 
     return path_sets
 

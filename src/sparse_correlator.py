@@ -51,6 +51,7 @@ class BlockAnalysis:
 
         if exclude_index is not None:
             exclude_index = spc_utils.to_backend(backend, exclude_index, dtype="float16", **device_info)
+            # exclude_index = spc_utils.to_backend(backend, exclude_index, dtype=bool, **device_info)
 
         if symmetric and mask is not None:
             if spc_utils.get_nnz_safe(mask != mask.T) == 0:
@@ -92,17 +93,6 @@ class BlockAnalysis:
                 mask_flat = ~spc_utils.sparse_to_array(mask_chunk.astype(bool)).ravel()
                 mask_flat = spc_utils.to_backend(self.backend, mask_flat, dtype=bool, **self.device_info)
                 select_index &= mask_flat
-
-        return select_index
-
-    def get_exclude_chunk_index(self, exclude_index, a_index, b_index, select_index):
-        """ """
-        if exclude_index is not None:
-            a_exclude = exclude_index[a_index]
-            b_exclude = exclude_index[b_index]
-
-            exclude_chunk = a_exclude.reshape(-1, 1) @ b_exclude.reshape(1, -1)
-            select_index &= (exclude_chunk == 0).flatten()
 
         return select_index
 
@@ -172,11 +162,11 @@ class SparseAggregator(BlockAnalysis):
 
         threshold_chunk_tv_index = backend.ones(A.shape[1] * B.shape[1], dtype=bool, **self.device_info)
         if exclude_index is not None:
-            a_exclude = exclude_index[a_index]
-            b_exclude = exclude_index[b_index]
+            a_include = 1 - exclude_index[a_index]
+            b_include = 1 - exclude_index[b_index]
 
-            exclude_chunk = a_exclude.reshape(-1, 1) @ b_exclude.reshape(1, -1)
-            threshold_chunk_tv_index &= (exclude_chunk == 0).flatten()
+            include_chunk = a_include.reshape(-1, 1) @ b_include.reshape(1, -1)
+            threshold_chunk_tv_index &= (include_chunk == 1).flatten()
 
         if mask is not None:
             mask_chunk = mask[a_index, b_index]

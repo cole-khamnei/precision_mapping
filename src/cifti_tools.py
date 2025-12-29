@@ -18,7 +18,6 @@ def load_voxel_data(dtseries_paths, censor_file=None, dtype="float32"):
     """ """
 
     if not isinstance(dtseries_paths, str):
-        # TODO: pretty sure this legacy to concatenate - check and remove
         return np.vstack([load_voxel_data(path) for path in dtseries_paths])
 
     assert (dtseries_paths.endswith(".npy") or dtseries_paths.endswith(".nii"))

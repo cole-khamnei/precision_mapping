@@ -12,9 +12,10 @@ from . import surface_mapping as sfm
 def process_partition(partition, min_voxels=0, filter_subcortex=True):
     """ """
     index, groups = partition
+    index = index.astype(int)
     if filter_subcortex:
-        # TODO: fix these issues, subcortex masking may not be correct
-        subcortex_index = index >= (32_492 * 2)
+        # TODO: identify correct subcortical masking, believe 59_412 is correct
+        subcortex_index = index >= 59_412
         index, groups = index[~subcortex_index], np.unique(groups[~subcortex_index], return_inverse=True)[1]
 
     groups = np.random.permutation(np.max(groups))[groups - 1]

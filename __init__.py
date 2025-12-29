@@ -7,6 +7,7 @@ from .src import cifti_tools
 from .src import partition_tools
 from .src import functional_connectivity
 from .src import parcellate
+from .src import sparse_correlator
 from .src import network_assignment as na
 from .tests import constants_test_suite as test_constants
 
