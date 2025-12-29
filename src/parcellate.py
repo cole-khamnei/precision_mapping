@@ -70,6 +70,12 @@ def kmeans_parcel_detection(dtseries_paths, parcel_save_paths, censor_files,
     desc = "Running kmeans parcel detection ({})"
     pbar = tqdm(total=len(parcel_save_paths), desc=desc)
     for dtseries_path, parcel_save_path, censor_file in zip(dtseries_paths, parcel_save_paths, censor_files):
+        if os.path.exists(parcel_save_path) and not overwrite:
+            utils.printer(f"{parcel_save_path} already exists and no '--overwrite' flag given. Skipping parcel detection.")
+            pbar.update(1)
+            continue
+        
+
         sample_label = parcel_save_path.split("/")[-1].split("_kms")[0]
         pbar.set_description(desc.format(sample_label))
 
