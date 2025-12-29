@@ -6,3 +6,4 @@ tests/outputs
 notebooks/scratch
 
 src/.nfs.*
+resources/surfaces/vertex_surface_area_reference.pkl
