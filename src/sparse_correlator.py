@@ -1,6 +1,7 @@
 import numpy as np
 import scipy
 
+from termcolor import colored
 from tqdm.auto import tqdm
 
 from . import spc_utils
@@ -61,7 +62,8 @@ class BlockAnalysis:
         n_blocks = int(np.ceil(data.shape[1] / block_size))
 
         total_blocks = n_blocks * (n_blocks + 1) // 2 if symmetric else n_blocks ** 2
-        pbar = tqdm(total=total_blocks * (block_size / 1000) ** 2, desc=f'{cls.__name__} Block Analysis', leave=leave)
+        pbar = tqdm(total=total_blocks * (block_size / 1000) ** 2,
+                    desc=colored(f'{cls.__name__} Block Analysis', "yellow"), colour="yellow", leave=leave)
 
         for a_count in range(n_blocks):
             a_start = a_count * block_size
@@ -84,17 +86,17 @@ class BlockAnalysis:
         pbar.close()
         return aggregator.results()
 
-    def get_mask_chunk_index(self, mask, a_index, b_index, select_index):
-        """ """
-        if mask is not None:
-            # print(mask.shape)
-            mask_chunk = mask[a_index, b_index]
-            if spc_utils.get_nnz_safe(mask_chunk) > 0:
-                mask_flat = ~spc_utils.sparse_to_array(mask_chunk.astype(bool)).ravel()
-                mask_flat = spc_utils.to_backend(self.backend, mask_flat, dtype=bool, **self.device_info)
-                select_index &= mask_flat
+    # def get_mask_chunk_index(self, mask, a_index, b_index, select_index):
+    #     """ """
+    #     if mask is not None:
+    #         # print(mask.shape)
+    #         mask_chunk = mask[a_index, b_index]
+    #         if spc_utils.get_nnz_safe(mask_chunk) > 0:
+    #             mask_flat = ~spc_utils.sparse_to_array(mask_chunk.astype(bool)).ravel()
+    #             mask_flat = spc_utils.to_backend(self.backend, mask_flat, dtype=bool, **self.device_info)
+    #             select_index &= mask_flat
 
-        return select_index
+    #     return select_index
 
     def preprocess(self, data):
         """ Can be modified child classes"""

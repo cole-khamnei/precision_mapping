@@ -5,6 +5,7 @@ import nibabel as nb
 import scipy
 
 from tqdm.auto import tqdm
+from termcolor import colored
 
 from . import constants, utils
 from . import cifti_tools, partition_tools
@@ -94,14 +95,14 @@ def assign_networks_batch(cifti_paths, partition_paths, save_paths,
 
     results = []
     gen_desc = "Assigning parcellation networks"
-    pbar = tqdm(total=len(save_paths), desc=gen_desc, unit="cifti")
+    pbar = tqdm(total=len(save_paths), desc=colored(gen_desc, constants.MAIN_PBAR_COLOR), unit="cifti", colour=constants.MAIN_PBAR_COLOR)
     for args in arg_sets:
         sample_label = os.path.basename(args[1]).split("_parcel")[0]
-        pbar.set_description(gen_desc + f" ({sample_label})")
+        pbar.set_description(colored(gen_desc + f" ({sample_label})", constants.MAIN_PBAR_COLOR))
         result = single_assign_func(args)
         pbar.update(1)
         results.append(result)
-    pbar.set_description(gen_desc)
+    pbar.set_description(colored(gen_desc, constants.MAIN_PBAR_COLOR))
     pbar.close()
     return results
 

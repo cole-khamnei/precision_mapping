@@ -3,6 +3,7 @@ import os
 import numpy as np
 import multiprocess as mp
 from tqdm.auto import tqdm
+from termcolor import colored
 
 from . import constants
 
@@ -30,6 +31,13 @@ def multicall(func, *args, main_dtype=str, pbar=False, pbar_kwargs={}, **kwargs)
     if check_multiple_args(args, main_dtype=main_dtype):
 
         if pbar:
+
+            if "colour" not in pbar_kwargs:
+                pbar_kwargs["colour"] = constants.MAIN_PBAR_COLOR
+
+            if "desc" in pbar_kwargs:
+                pbar_kwargs["desc"] = colored(pbar_kwargs["desc"], pbar_kwargs["colour"])
+
             for args_i in tqdm(zip(*args), total=len(args[0]), **pbar_kwargs):
                 func(*args_i, **kwargs)
         else:

@@ -2,6 +2,8 @@ import argparse
 import os
 import sys
 
+from termcolor import colored
+
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from src import functional_connectivity, network_assignment
@@ -180,7 +182,7 @@ def get_arguments(test_args: list = None):
 
 def main(test_args=None):
     """ """
-    print()
+    print(colored("\nRunning PFM pipeline:", "yellow"))
     args = get_arguments(test_args=test_args)
 
     full_pipeline(args.ciftis, args.subject_ids, args.sample_labels, args.out_dir,
@@ -197,7 +199,7 @@ def main(test_args=None):
                   backend=args.backend,
                   n_cores=args.n_cores,
                   n_parcels=args.k_parcels)
-
+    print(colored("PFM pipeline finished.\n", "yellow"))
 
 if __name__ == '__main__':
     main()

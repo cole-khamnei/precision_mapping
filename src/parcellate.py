@@ -8,8 +8,9 @@ import scipy
 from sklearn.cluster import KMeans
 from infomap import Infomap
 from tqdm.auto import tqdm
+from termcolor import colored
 
-from . import utils, cifti_tools
+from . import utils, cifti_tools, constants
 
 # ----------------------------------------------------------------------------# 
 # ----------------           Infomaps Parcellating            ----------------# 
@@ -68,7 +69,7 @@ def kmeans_parcel_detection(dtseries_paths, parcel_save_paths, censor_files,
         censor_files = [None] * len(parcel_save_paths)
 
     desc = "Running kmeans parcel detection ({})"
-    pbar = tqdm(total=len(parcel_save_paths), desc=desc)
+    pbar = tqdm(total=len(parcel_save_paths), desc=colored(desc, constants.MAIN_PBAR_COLOR), colour=constants.MAIN_PBAR_COLOR)
     for dtseries_path, parcel_save_path, censor_file in zip(dtseries_paths, parcel_save_paths, censor_files):
         if os.path.exists(parcel_save_path) and not overwrite:
             utils.printer(f"{parcel_save_path} already exists and no '--overwrite' flag given. Skipping parcel detection.")
@@ -77,7 +78,7 @@ def kmeans_parcel_detection(dtseries_paths, parcel_save_paths, censor_files,
         
 
         sample_label = parcel_save_path.split("/")[-1].split("_kms")[0]
-        pbar.set_description(desc.format(sample_label))
+        pbar.set_description(colored(desc.format(sample_label), constants.MAIN_PBAR_COLOR))
 
         voxel_data = cifti_tools.load_voxel_data(dtseries_path, censor_file=censor_file)
         indices = np.arange(voxel_data.shape[1])
@@ -129,7 +130,8 @@ def parcel_detection(corr_matrix, save_path, n_cores=None, silent=True,
     single_parcel_func = lambda args: parcel_detection_single(args[0], args[1], silent=silent, **parcellating_kwargs)
     desc = "Running infomap parcel detection"
 
-    results = [single_parcel_func(arg_set) for arg_set in tqdm(arg_sets, total=len(save_paths), desc=desc)]
+    results = [single_parcel_func(arg_set) for arg_set in tqdm(arg_sets, total=len(save_paths),
+                                                               desc=colored(desc, constants.MAIN_PBAR_COLOR), colour=constants.MAIN_PBAR_COLOR)]
 
     # TODO: debug multiprocess in jn?
     # n_cores = utils.get_n_cores(n_cores)

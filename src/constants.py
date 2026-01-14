@@ -49,6 +49,7 @@ def get_geodesic_distance_mask_path(distance):
     return f"{BRAIN_DISTANCE_DIR}/geodesic_mask_{distance}.npz"
 
 # DEFAULT_MASK = get_geodesic_distance_mask_path(30)
+# DEFAULT_MASK = get_geodesic_distance_mask_path(10)
 DEFAULT_MASK = None
 
 VERTEX_SURFACE_AREA_REFERENCE_PATH = f"{SURFACE_DIR}/vertex_surface_area_reference.pkl"
@@ -76,6 +77,8 @@ OUTPUT_FILE_ENDINGS = {
     "qc-plot": "QC_plot.png",
     "network-size-csv": "network_sizes.csv",
 }
+
+MAIN_PBAR_COLOR = "blue"
 
 # ----------------------------------------------------------------------------# 
 # --------------------                End                 --------------------# 
