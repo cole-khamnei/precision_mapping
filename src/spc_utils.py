@@ -132,7 +132,16 @@ def backend_norm(backend, x):
 
     x = x.T
     x_demeaned = x - x.mean(axis=1, keepdims=True)
-    x_norm = x_demeaned / backend.sqrt(backend.sum(x_demeaned ** 2, axis=1, keepdims=True))
+    z = backend.sqrt(backend.sum(x_demeaned ** 2, axis=1, keepdims=True))
+
+    n_zero_variance = (z == 0).sum()
+    if n_zero_variance > 0:
+        print(f"WARNING: {n_zero_variance} degenerate vertices (variance == 0); setting to 0")
+        x_demeaned[z[:,0] == 0] = 0
+        z[z == 0] = 99
+
+    x_norm = x_demeaned / z
+
     return x_norm.T
 
 

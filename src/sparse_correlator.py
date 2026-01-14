@@ -274,6 +274,7 @@ def top_row_correlations(data,
                          exclude_index=None,
                          ):
     """ """
+
     n_vertices = data.shape[1]
     k_top_vertices = int(np.ceil(sparsity/100 * n_vertices))
 
@@ -281,6 +282,9 @@ def top_row_correlations(data,
     device_info = spc_utils.get_device_info(backend, device)
     data = spc_utils.to_backend(backend, data, dtype=dtype, **device_info)
     normed_data = spc_utils.backend_norm(backend, data)
+
+    assert not backend.isnan(normed_data).any(), "Nans in normed data"
+
     x_norm, y_norm = normed_data.T, normed_data.T
 
     n_windows = int(np.ceil(y_norm.shape[0] / window_size))
@@ -321,6 +325,9 @@ def top_row_correlations(data,
 
     tv, ri, ci = spc_utils.to_np((c_values, c_x_indices, c_y_indices))
     csr_sparse_corrs = scipy.sparse.csr_matrix((tv, (ri.astype(int), ci.astype(int))), shape=(n_vertices, n_vertices))
+
+
+    assert not any(np.isnan(tv)), "Nans in vFC"
 
     return csr_sparse_corrs
 

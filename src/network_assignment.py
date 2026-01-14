@@ -37,7 +37,7 @@ def get_network_assignment_labels(vertex_labels, vertex_data, network_labels, sp
     
     cluster_labels = np.sort(np.unique(remapped_vertex_labels))
     roi_index_set = remapped_vertex_labels.reshape(-1, 1) == cluster_labels
-    
+
     roi_mean_signals = np.array([vertex_data[:, ri].mean(axis=1) for ri in roi_index_set.T]).T
     roi_mean_FCs = utils.np_corr(vertex_data, roi_mean_signals)
 
