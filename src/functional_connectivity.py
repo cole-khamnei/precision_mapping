@@ -9,6 +9,7 @@ from termcolor import colored
 
 from . import constants, cifti_tools, utils
 from .sparse_correlator import SparseCorrelator
+from .sparse_correlator import top_row_correlations
 
 
 # ----------------------------------------------------------------------------# 
@@ -35,7 +36,8 @@ def generate_voxel_FC(voxel_data,
         mask = f"{constants.BRAIN_DISTANCE_DIR}/mask_test.npz"
 
     if not (mask is None or mask == "debug"):
-        raise NotImplementedError("Masking is not working right now options are None and 'debug'")
+        pass
+        # raise NotImplementedError("Masking is not working right now options are None and 'debug'")
 
     mask = scipy.sparse.load_npz(mask) if mask else None
 
@@ -49,9 +51,13 @@ def generate_voxel_FC(voxel_data,
     else:
         exclude_index = None
 
-    sc = SparseCorrelator.run(voxel_data, sparsity_percent=sparsity, symmetric=True,
+    # sc = SparseCorrelator.run(voxel_data, sparsity_percent=sparsity, symmetric=True,
+    #                           mask=mask, exclude_index=exclude_index,
+    #                           block_size=block_size, leave=leave, **SC_kwargs)
+
+    sc = top_row_correlations(voxel_data, sparsity=sparsity,
                               mask=mask, exclude_index=exclude_index,
-                              block_size=block_size, leave=leave, **SC_kwargs)
+                              window_size=block_size // 5, leave=leave, **SC_kwargs)
     if save_path:
         scipy.sparse.save_npz(save_path, sc)
 

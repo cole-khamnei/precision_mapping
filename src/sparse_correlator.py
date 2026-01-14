@@ -259,6 +259,72 @@ class SparseCorrelator(Correlator, SparseAggregator):
         SparseAggregator.__init__(self, *args, **kwargs)
 
 
+# \section top k row correlations
+
+
+def top_row_correlations(data,
+                         sparsity=0.1,
+                         window_size=100,
+                         backend="torch",
+                         device="cpu",
+                         leave=False,
+                         dtype="float32",
+                         skip_diagonal=True,
+                         mask=None,
+                         exclude_index=None,
+                         ):
+    """ """
+    n_vertices = data.shape[1]
+    k_top_vertices = int(np.ceil(sparsity/100 * n_vertices))
+
+    backend = spc_utils.get_backend(backend)
+    device_info = spc_utils.get_device_info(backend, device)
+    data = spc_utils.to_backend(backend, data, dtype=dtype, **device_info)
+    normed_data = spc_utils.backend_norm(backend, data)
+    x_norm, y_norm = normed_data.T, normed_data.T
+
+    n_windows = int(np.ceil(y_norm.shape[0] / window_size))
+
+    c_x_indices, c_values = [], []
+    for i in tqdm(range(n_windows), leave=leave, desc=colored("Top K Sparse Correlation", "yellow"), colour="yellow",):
+        window_start_index = i * window_size
+        window_end_index = window_start_index + window_size
+        y_window_slice = slice(window_start_index, window_start_index + window_size)
+        y_window = y_norm[y_window_slice]
+
+        window_start_index, window_end_index = i * window_size, (i + 1) * window_size
+        y_window_slice = slice(window_start_index, window_end_index)
+        corr_window = (x_norm @ y_norm[y_window_slice].T)
+
+
+        if skip_diagonal:
+            corr_window[np.arange(window_start_index, window_start_index + corr_window.shape[1]), np.arange(corr_window.shape[1])] = 0
+
+        if exclude_index is not None:
+            y_window_exclude = exclude_index[y_window_slice]
+            if any(y_window_exclude):
+                corr_window[exclude_index][:, y_window_exclude] = 0
+
+        if mask is not None:
+            mask_window = ~spc_utils.sparse_to_array(mask[:, y_window_slice].astype(bool))
+            mask_window = spc_utils.to_backend(backend, mask_window, dtype=bool, **device_info)
+            corr_window = corr_window * mask_window
+
+        cw_values, cw_x_indices = spc_utils.MPS_safe_topk(backend, device_info, corr_window, k_top_vertices, axis=0)
+
+        c_x_indices.append(cw_x_indices)
+        c_values.append(cw_values)
+
+    c_values = backend.concat(c_values, axis=1).ravel()
+    c_x_indices = backend.concat(c_x_indices, axis=1).ravel()
+    c_y_indices = np.tile(np.arange(n_vertices), (k_top_vertices, 1)).ravel()
+
+    tv, ri, ci = spc_utils.to_np((c_values, c_x_indices, c_y_indices))
+    csr_sparse_corrs = scipy.sparse.csr_matrix((tv, (ri.astype(int), ci.astype(int))), shape=(n_vertices, n_vertices))
+
+    return csr_sparse_corrs
+
+
 # ----------------------------------------------------------------------------# 
 # --------------------                End                 --------------------# 
 # ----------------------------------------------------------------------------#
