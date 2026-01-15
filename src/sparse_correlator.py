@@ -1,10 +1,11 @@
 import numpy as np
 import scipy
 
-from termcolor import colored
+
 from tqdm.auto import tqdm
 
 from . import spc_utils
+from .utils import colored
 
 # ----------------------------------------------------------------------------# 
 # -----------------           Bock Analysis Module           -----------------# 
@@ -63,7 +64,7 @@ class BlockAnalysis:
 
         total_blocks = n_blocks * (n_blocks + 1) // 2 if symmetric else n_blocks ** 2
         pbar = tqdm(total=total_blocks * (block_size / 1000) ** 2,
-                    desc=colored(f'{cls.__name__} Block Analysis', "yellow"), colour="yellow", leave=leave)
+                    desc=colored(f'{cls.__name__} Block Analysis', "#eb9617"), colour="#eb9617", leave=leave)
 
         for a_count in range(n_blocks):
             a_start = a_count * block_size
@@ -290,7 +291,7 @@ def top_row_correlations(data,
     n_windows = int(np.ceil(y_norm.shape[0] / window_size))
 
     c_x_indices, c_values = [], []
-    for i in tqdm(range(n_windows), leave=leave, desc=colored("Top K Sparse Correlation", "yellow"), colour="yellow",):
+    for i in tqdm(range(n_windows), leave=leave, desc=colored("Top K Sparse Correlation", "#eb9617"), colour="#eb9617"):
         window_start_index = i * window_size
         window_end_index = window_start_index + window_size
         y_window_slice = slice(window_start_index, window_start_index + window_size)

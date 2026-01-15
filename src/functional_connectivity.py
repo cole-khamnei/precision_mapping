@@ -5,11 +5,11 @@ import scipy
 
 from concurrent.futures import ThreadPoolExecutor
 from tqdm.auto import tqdm
-from termcolor import colored
 
 from . import constants, cifti_tools, utils
 from .sparse_correlator import SparseCorrelator
 from .sparse_correlator import top_row_correlations
+from .utils import colored
 
 
 # ----------------------------------------------------------------------------# 

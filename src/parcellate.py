@@ -8,9 +8,9 @@ import scipy
 from sklearn.cluster import KMeans
 from infomap import Infomap
 from tqdm.auto import tqdm
-from termcolor import colored
 
 from . import utils, cifti_tools, constants
+from .utils import colored
 
 # ----------------------------------------------------------------------------# 
 # ----------------           Infomaps Parcellating            ----------------# 

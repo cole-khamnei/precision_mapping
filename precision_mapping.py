@@ -2,13 +2,13 @@ import argparse
 import os
 import sys
 
-from termcolor import colored
-
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from src import functional_connectivity, network_assignment
 from src import constants, parcellate, plot, utils
 from src import partition_tools as pt
+
+from src.utils import colored
 
 # ----------------------------------------------------------------------------# 
 # --------------------              Pipeline              --------------------# 

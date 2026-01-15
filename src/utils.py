@@ -2,8 +2,11 @@ import os
 
 import numpy as np
 import multiprocess as mp
+
+import termcolor
+
 from tqdm.auto import tqdm
-from termcolor import colored
+# from termcolor import colored
 
 from . import constants
 
@@ -93,7 +96,22 @@ class Printer:
     def unmute(self):
         self.silent = False
 
+
 printer = Printer(silent=False)
+
+
+def is_interactive():
+    import __main__ as main
+    return not hasattr(main, '__file__')
+
+
+def colored(text, color):
+    """ """
+    if not is_interactive():
+        return termcolor.colored(text, color)
+
+    return text
+
 
 # ----------------------------------------------------------------------------# 
 # --------------------             Np Helpers             --------------------# 

@@ -5,10 +5,10 @@ import nibabel as nb
 import scipy
 
 from tqdm.auto import tqdm
-from termcolor import colored
 
 from . import constants, utils
 from . import cifti_tools, partition_tools
+from .utils import colored
 
 # ----------------------------------------------------------------------------# 
 # -----------              Network Assignment Helpers              -----------# 
