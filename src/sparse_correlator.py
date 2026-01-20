@@ -282,16 +282,17 @@ def top_row_correlations(data,
     backend = spc_utils.get_backend(backend)
     device_info = spc_utils.get_device_info(backend, device)
     data = spc_utils.to_backend(backend, data, dtype=dtype, **device_info)
+
+    n_windows = int(np.ceil(data.shape[1] / window_size))
+    pbar = tqdm(range(n_windows), leave=leave, desc=colored("Top K Sparse Correlation", "yellow"), colour="#eb9617")
     normed_data = spc_utils.backend_norm(backend, data)
 
     assert not backend.isnan(normed_data).any(), "Nans in normed data"
 
     x_norm, y_norm = normed_data.T, normed_data.T
 
-    n_windows = int(np.ceil(y_norm.shape[0] / window_size))
-
     c_x_indices, c_values = [], []
-    for i in tqdm(range(n_windows), leave=leave, desc=colored("Top K Sparse Correlation", "#eb9617"), colour="#eb9617"):
+    for i in pbar:
         window_start_index = i * window_size
         window_end_index = window_start_index + window_size
         y_window_slice = slice(window_start_index, window_start_index + window_size)

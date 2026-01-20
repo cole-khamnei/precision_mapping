@@ -121,7 +121,7 @@ def generate_correlation_batch(cifti_paths, save_paths,
 
     results = []
     gen_desc = "Generating vertex-level FC"
-    pbar = tqdm(total=len(save_paths), desc=colored(gen_desc, constants.MAIN_PBAR_COLOR), colour=constants.MAIN_PBAR_COLOR)
+    pbar = tqdm(total=len(save_paths), desc=colored(gen_desc, constants.MAIN_TERM_COLOR), colour=constants.MAIN_PBAR_COLOR)
 
     load_indices = [i for i, save_path in enumerate(save_paths) if not os.path.exists(save_path) or overwrite]
     written_save_paths = [save_path for save_path in save_paths if os.path.exists(save_path) and not overwrite]
@@ -152,7 +152,7 @@ def generate_correlation_batch(cifti_paths, save_paths,
                 continue
 
             sample_label = os.path.basename(save_path)#.split("_parcel")[0]
-            pbar.set_description(colored(gen_desc + f" ({sample_label})", constants.MAIN_PBAR_COLOR))
+            pbar.set_description(colored(gen_desc + f" ({sample_label})", constants.MAIN_TERM_COLOR))
             voxel_data = voxel_data[:max_trs] if max_trs else voxel_data
             sc = generate_voxel_FC(voxel_data, save_path=None, sparsity=sparsity,
                                    exclude_index_path=exclude_index_path,
@@ -166,7 +166,7 @@ def generate_correlation_batch(cifti_paths, save_paths,
             pbar.update(1)
 
         executor.shutdown(wait=True)
-        pbar.set_description(colored(gen_desc, constants.MAIN_PBAR_COLOR))
+        pbar.set_description(colored(gen_desc, constants.MAIN_TERM_COLOR))
         pbar.close()
 
     return results

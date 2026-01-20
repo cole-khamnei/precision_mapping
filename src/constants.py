@@ -78,7 +78,7 @@ OUTPUT_FILE_ENDINGS = {
     "network-size-csv": "network_sizes.csv",
 }
 
-MAIN_PBAR_COLOR = "blue"
+MAIN_TERM_COLOR = "blue"
 MAIN_PBAR_COLOR = "#3297a8"
 
 # ----------------------------------------------------------------------------# 

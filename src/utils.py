@@ -39,7 +39,7 @@ def multicall(func, *args, main_dtype=str, pbar=False, pbar_kwargs={}, **kwargs)
                 pbar_kwargs["colour"] = constants.MAIN_PBAR_COLOR
 
             if "desc" in pbar_kwargs:
-                pbar_kwargs["desc"] = colored(pbar_kwargs["desc"], pbar_kwargs["colour"])
+                pbar_kwargs["desc"] = colored(pbar_kwargs["desc"], constants.MAIN_TERM_COLOR)
 
             for args_i in tqdm(zip(*args), total=len(args[0]), **pbar_kwargs):
                 func(*args_i, **kwargs)
