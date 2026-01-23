@@ -2,6 +2,7 @@ import os
 import gc
 
 import numpy as np
+import pandas as pd
 import multiprocess as mp
 import scipy
 
@@ -34,17 +35,32 @@ def infomap_parcellation(matrix, save_path=None, num_trials=1, **kwargs):
         utils.printer(f"WARNING: reduced number of vertex connections. {vertex_edge_frac}")
 
     infomap = Infomap(two_level=True, num_trials=num_trials, **kwargs)
-    # for r_i, c_i in zip(*matrix.nonzero()):
-    #     infomap.add_link(r_i, c_i, weight=matrix[r_i, c_i])
     for r_i, c_i, fc_i in zip(*matrix.nonzero(), matrix.data):
         infomap.add_link(r_i, c_i, weight=fc_i)
 
     infomap.run()
-    partition = infomap.get_modules()
 
-    indices = np.array(list(partition.keys()))
-    groups = np.array(list(partition.values()))
+    # # Added node walk version: is safer than .get_modules()
+    partition_df = pd.DataFrame([[node.physicalId, node.stateId, node.layerId]
+                                 for node in infomap.iterTree()],
+                                columns=["physical_id", "state_id", "layer"])
+    partition_df = partition_df.drop_duplicates()
 
+    mdl1 = infomap.get_modules(depth_level=1, states=True)
+    mdl2 = infomap.get_modules(depth_level=2, states=True)
+
+    # partition_df["mod_depth1"] = partition_df["state_id"].map(mdl1.get)
+    partition_df["mod_depth2"] = partition_df["state_id"].map(mdl2.get)
+
+    partition_df = partition_df.sort_values("physical_id")
+    indices = partition_df["physical_id"].values
+    groups = partition_df["mod_depth2"].values
+
+    # partition = infomap.get_modules()
+    # indices = np.array(list(partition.keys()))
+    # groups = np.array(list(partition.values()))
+    # print((indices ==  partition_df["physical_id"].values).all())
+    # print((groups ==  partition_df["mod_depth1"].values).all())
 
     if save_path:
         save_partition(indices, groups, save_path)

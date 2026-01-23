@@ -102,6 +102,9 @@ def process_args(args):
     args.sample_labels = utils.resolve_str_txt_list(args.sample_labels)
     args.censor_files = utils.resolve_str_txt_list(args.censor_files, file_ext=".dat")
 
+    if args.mask.strip().lower() == "none":
+        args.mask = None
+
     return args
 
 
