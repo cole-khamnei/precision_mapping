@@ -7,6 +7,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from src import functional_connectivity, network_assignment
 from src import constants, parcellate, plot, utils
 from src import partition_tools as pt
+from src import spatial_filtering
 
 from src.utils import colored
 
@@ -15,12 +16,17 @@ from src.utils import colored
 # ----------------------------------------------------------------------------# 
 
 
-def infomaps_parcel_detection(dtseries_paths, paths, censor_files, sparsity,
+def infomaps_parcel_detection(dtseries_paths,
+                              vertex_fc_paths,
+                              parcel_detection_save_paths,
+                              paths,
+                              censor_files, sparsity,
                               mask, block_size, overwrite, backend, device,
                               n_cores, n_infomaps_reps, silent, seed, **kwargs):
     """ """
     functional_connectivity.generate_correlation_matrix(dtseries_paths,
-                                                        paths["vertex-fc"],
+                                                        # paths["vertex-fc"],
+                                                        vertex_fc_paths,
                                                         censor_file=censor_files,
                                                         sparsity=sparsity,
                                                         mask=mask,
@@ -28,8 +34,11 @@ def infomaps_parcel_detection(dtseries_paths, paths, censor_files, sparsity,
                                                         overwrite=overwrite,
                                                         backend=backend,
                                                         device=device)
-    parcellate.parcel_detection(paths["vertex-fc"],
-                                paths["parcel-partition"],
+    parcellate.parcel_detection(
+                                # paths["vertex-fc"],
+                                # paths["parcel-partition"],
+                                vertex_fc_paths,
+                                parcel_detection_save_paths,
                                 n_cores=n_cores,
                                 n_reps=n_infomaps_reps,
                                 overwrite=overwrite,
@@ -49,8 +58,11 @@ def full_pipeline(dtseries_paths, subject_ids, sample_labels, out_dir,
                   block_size=constants.DEFAULT_BLOCK_SIZE,
                   seed=constants.DEFAULT_SEED,
                   n_cores=constants.DEFAULT_N_CORES,
+                  n_cores_wb=constants.DEFAULT_N_CORES_WB,
                   n_infomaps_reps=constants.DEFAULT_N_INFOMAPS_REPS,
-                  n_parcels=constants.DEFAULT_K_PARCELS):
+                  n_parcels=constants.DEFAULT_K_PARCELS,
+                  spatial_filter_size=constants.SPATIAL_FILTER_SIZE,
+                  n_spatial_filter_parcels=None):
     """ """
     dtseries_paths = utils.list_wrap(dtseries_paths, str)
     subject_ids = utils.list_wrap(subject_ids, str)
@@ -65,14 +77,31 @@ def full_pipeline(dtseries_paths, subject_ids, sample_labels, out_dir,
     #TODO: add include index mapping
     #TODO: wrap this in parcellate func, which specifies parcellate method (infomaps, kmeans, etc)
 
+    paths["parcel-partition-no-sfd"] = [p.replace(".npy", "_no_sfd.npy") for p in paths["parcel-partition"]]
+    if spatial_filter_size > 0:
+        parcel_detection_save_paths = paths["parcel-partition-no-sfd"]
+    else:
+        parcel_detection_save_paths = paths["parcel-partition"]
+
     if method == "infomaps":
-        infomaps_parcel_detection(dtseries_paths, paths, censor_files, sparsity, mask, block_size,
+        infomaps_parcel_detection(dtseries_paths,
+                                  paths["vertex-fc"],
+                                  parcel_detection_save_paths,
+                                  paths,
+                                  censor_files, sparsity, mask, block_size,
                                   overwrite, backend, device, n_cores, n_infomaps_reps, silent, seed)
     elif method == "kmeans":
         parcellate.kmeans_parcel_detection(dtseries_paths, paths["parcel-partition"],
                                            censor_files, overwrite, seed, n_parcels)
     else:
         raise NotImplementedError(f"invalid method: '{method}'")
+
+
+    if spatial_filter_size > 0:
+        spatial_filtering.batch_spatial_filter_and_dilate(parcel_detection_save_paths, paths["parcel-partition"], overwrite=overwrite, 
+                                                          n_cpu=n_cores_wb, pbar=True, min_size=spatial_filter_size,
+                                                          n_parcels=n_spatial_filter_parcels)
+
 
     network_assignment.assign_networks_batch(dtseries_paths,
                                              paths["parcel-partition"],
@@ -141,7 +170,14 @@ def get_arguments(test_args: list = None):
                         help="Number of infomap repetitions")
     parser.add_argument("--n-cores", dest='n_cores', action="store", type=int,
                         default=constants.DEFAULT_N_CORES,
-                        help="Number of cores to use for infomaps (increases mem usage A LOT)")
+                        help="Number of cores to use for infomaps (increases mem usage A LOT!)")
+
+    parser.add_argument("--spatial-filter-size", dest='spatial_filter_size', action="store", type=float,
+                        default=constants.SPATIAL_FILTER_SIZE,
+                        help="Spatial filter size (mm)")
+    parser.add_argument("--spatial-filter-n-parcels", dest='n_spatial_filter_parcels', action="store", type=int,
+                        default=None,
+                        help="Spatial filter n parcels to filter for debugging (default is all, just slow)")
 
     # FC arguments
     parser.add_argument("--sparsity", dest='sparsity', action="store", type=float,
@@ -201,7 +237,9 @@ def main(test_args=None):
                   device=args.device,
                   backend=args.backend,
                   n_cores=args.n_cores,
-                  n_parcels=args.k_parcels)
+                  n_parcels=args.k_parcels,
+                  spatial_filter_size=args.spatial_filter_size,
+                  n_spatial_filter_parcels=args.n_spatial_filter_parcels)
     print(colored("PFM pipeline finished.\n", "yellow"))
 
 if __name__ == '__main__':

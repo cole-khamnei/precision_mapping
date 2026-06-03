@@ -25,7 +25,7 @@ def save_partition(indices, groups, save_path, fill_value=np.nan):
     np.save(save_path, [full_indices, full_groups])
 
 
-def infomap_parcellation(matrix, save_path=None, num_trials=1, **kwargs):
+def infomap_parcellation(matrix, save_path=None, num_trials=1, n_cores_wb=8, min_size=50, **kwargs):
     """ """
 
     row_counts = np.array((matrix > 0).sum(axis=0)).ravel()
@@ -62,7 +62,13 @@ def infomap_parcellation(matrix, save_path=None, num_trials=1, **kwargs):
     # print((indices ==  partition_df["physical_id"].values).all())
     # print((groups ==  partition_df["mod_depth1"].values).all())
 
+    # full_indices, full_groups = np.arange(91_282).astype(int), np.full(91_282, fill_value=fill_value)
+    # full_groups[indices] = groups
+    # if spatial_filter:
+    #     spatial_filtering.spatial_filter_and_dilate(test_pt_values, template_cifti_path, n_cpu=n_cores_wb, pbar=True, min_size=min_size)
+
     if save_path:
+        # np.save(save_path, [full_indices, full_groups])
         save_partition(indices, groups, save_path)
     
     return indices, groups

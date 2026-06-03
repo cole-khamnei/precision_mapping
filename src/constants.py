@@ -1,5 +1,10 @@
 import os
 
+# \section external packages/tools paths
+
+WB_COMMAND_PATH = "wb_command"
+
+
 # ----------------------------------------------------------------------------# 
 # --------------------               Paths                --------------------# 
 # ----------------------------------------------------------------------------# 
@@ -60,10 +65,13 @@ TEMPLATE_CIFTI_PATH = f"{RESOURCES_DIR}/template.dtseries.nii"
 # ---------------            Main Argument Defaults            ---------------# 
 # ----------------------------------------------------------------------------# 
 
-DEFAULT_SEED = 137
+DEFAULT_SEED = 42
 DEFAULT_N_INFOMAPS_REPS = 50
 DEFAULT_N_CORES = 1
+DEFAULT_N_CORES_WB = 8 # number of workbench cores to use, when calling wb
 DEFAULT_FC_SPARSITY = 0.1
+SPATIAL_FILTER_SIZE = 50
+
 DEFAULT_BLOCK_SIZE = 1_000
 DEFAULT_K_PARCELS = 200
 
