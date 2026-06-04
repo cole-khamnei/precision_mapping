@@ -77,6 +77,7 @@ DEFAULT_K_PARCELS = 200
 
 OUTPUT_FILE_ENDINGS = {
     "vertex-fc": "vertex_FC.npz",
+    "distance-matrix": "dist_matrix.npz",
     "parcel-partition": "parcel_partition.npy",
     "network-partition": "network_partition.npy",
     "parcel-dlabel": "parcels.dlabel.nii",

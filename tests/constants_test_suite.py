@@ -21,20 +21,28 @@ TEST_DTSERIES_PATH = f"{TEST_INPUTS_DIR}/example_small.dtseries.nii"
 TEST_DTSERIES_CENSOR_FILE = f"{TEST_INPUTS_DIR}/example_small_frame_censor.dat"
 TEST_SUBJECT_ID = "outputs"
 TEST_SAMPLE_LABEL = "example"
+TEST_SURFACE_LEFT_PATH = f"{TEST_INPUTS_DIR}/example_left_midthickness_32k_fs_LR.surf.gii"
+TEST_SURFACE_RIGHT_PATH = f"{TEST_INPUTS_DIR}/example_right_midthickness_32k_fs_LR.surf.gii"
+
 
 #txt file inputs
 TEST_DTSERIES_LIST_PATH = f"{TEST_INPUTS_DIR}/example_small_dtseries_list.txt"
 TEST_DTSERIES_CENSOR_FILE_LIST_PATH = f"{TEST_INPUTS_DIR}/example_small_frame_censor_list.txt"
 TEST_SUBJECT_IDS_LIST_PATH = f"{TEST_INPUTS_DIR}/example_small_subject_ids_list.txt"
 TEST_SAMPLE_LABELS_LIST_PATH = f"{TEST_INPUTS_DIR}/example_small_sample_labels_list.txt"
+TEST_SURFACE_LEFT_LIST_PATH =f"{TEST_INPUTS_DIR}/example_surface_left_list.txt"
+TEST_SURFACE_RIGHT_LIST_PATH =f"{TEST_INPUTS_DIR}/example_surface_RIGHT_list.txt"
+
 
 # supplied intermediates
 TEST_SUPPLIED_VERTEX_FC_PATH = f"{TEST_INPUTS_DIR}/example_vertex_FC.npz"
+TEST_SUPPLIED_DIST_MATRIX_PATH = f"{TEST_INPUTS_DIR}/example_dist_matrix.npz"
 TEST_SUPPLIED_PARCEL_PARTITION_PATH = f"{TEST_INPUTS_DIR}/example_parcel_partition.npy"
 TEST_SUPPLIED_NETWORK_PARTITION_PATH = f"{TEST_INPUTS_DIR}/example_network_partition.npy"
 
 #output paths
 TEST_OUTPUT_VERTEX_FC_PATH = f"{TEST_OUTPUTS_DIR}/example_vertex_FC.npz"
+TEST_OUTPUT_DIST_MATRIX_PATH = f"{TEST_OUTPUTS_DIR}/example_dist_matrix.npz"
 TEST_OUTPUT_PARCEL_PARTITION_PATH = f"{TEST_OUTPUTS_DIR}/example_parcel_partition.npy"
 TEST_OUTPUT_NETWORK_PARTITION_PATH = f"{TEST_OUTPUTS_DIR}/example_network_partition.npy"
 TEST_OUTPUT_NETWORK_DLABEL_PATH = f"{TEST_OUTPUTS_DIR}/example_networks.dlabel.nii"
@@ -54,6 +62,8 @@ write_txt_file(TEST_DTSERIES_LIST_PATH, TEST_DTSERIES_PATH, N_TEST_REPS)
 write_txt_file(TEST_DTSERIES_CENSOR_FILE_LIST_PATH, TEST_DTSERIES_CENSOR_FILE, N_TEST_REPS)
 write_txt_file(TEST_SUBJECT_IDS_LIST_PATH, TEST_SUBJECT_ID, N_TEST_REPS)
 write_txt_file(TEST_SAMPLE_LABELS_LIST_PATH, TEST_SAMPLE_LABEL, N_TEST_REPS)
+write_txt_file(TEST_SURFACE_LEFT_LIST_PATH, TEST_SURFACE_LEFT_PATH, N_TEST_REPS)
+write_txt_file(TEST_SURFACE_RIGHT_LIST_PATH, TEST_SURFACE_RIGHT_PATH, N_TEST_REPS)
 
 # ----------------------------------------------------------------------------# 
 # --------------------          Constant Values           --------------------# 

@@ -7,7 +7,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from src import functional_connectivity, network_assignment
 from src import constants, parcellate, plot, utils
 from src import partition_tools as pt
-from src import spatial_filtering
+from src import spatial_filtering, distances
 
 from src.utils import colored
 
@@ -48,6 +48,8 @@ def infomaps_parcel_detection(dtseries_paths,
 
 def full_pipeline(dtseries_paths, subject_ids, sample_labels, out_dir,
                   censor_files=None,
+                  left_surface_paths=None,
+                  right_surface_paths=None,
                   overwrite=False,
                   silent=True,
                   method="infomaps",
@@ -68,6 +70,9 @@ def full_pipeline(dtseries_paths, subject_ids, sample_labels, out_dir,
     subject_ids = utils.list_wrap(subject_ids, str)
     sample_labels = utils.list_wrap(sample_labels, str)
     censor_files = None if censor_files is None else utils.list_wrap(censor_files, str)
+
+    left_surface_paths = utils.list_wrap(left_surface_paths, str)
+    right_surface_paths = utils.list_wrap(right_surface_paths, str)
     
     paths = utils.create_pm_paths(subject_ids, sample_labels, out_dir, method=method)
 
@@ -77,11 +82,14 @@ def full_pipeline(dtseries_paths, subject_ids, sample_labels, out_dir,
     #TODO: add include index mapping
     #TODO: wrap this in parcellate func, which specifies parcellate method (infomaps, kmeans, etc)
 
+    #TODO: clean up following spatial filter logic flow
     paths["parcel-partition-no-sfd"] = [p.replace(".npy", "_no_sfd.npy") for p in paths["parcel-partition"]]
     if spatial_filter_size > 0:
         parcel_detection_save_paths = paths["parcel-partition-no-sfd"]
     else:
         parcel_detection_save_paths = paths["parcel-partition"]
+
+    distances.calc_surf_distance_matrix(left_surface_paths, right_surface_paths, paths["distance-matrix"])
 
     if method == "infomaps":
         infomaps_parcel_detection(dtseries_paths,
@@ -130,6 +138,8 @@ def process_args(args):
     args.subject_ids = utils.resolve_str_txt_list(args.subject_ids)
     args.sample_labels = utils.resolve_str_txt_list(args.sample_labels)
     args.censor_files = utils.resolve_str_txt_list(args.censor_files, file_ext=".dat")
+    args.left_surface_paths = utils.resolve_str_txt_list(args.left_surface_paths, file_ext=".surf.gii")
+    args.right_surface_paths = utils.resolve_str_txt_list(args.right_surface_paths, file_ext=".surf.gii")
 
     if args.mask.strip().lower() == "none":
         args.mask = None
@@ -154,6 +164,10 @@ def get_arguments(test_args: list = None):
                         required=True, help="Sample labels (SUBJECT137_RUN_1) or txt file")
     parser.add_argument("--censor-files", dest='censor_files', action="extend", nargs="+",
                         help="Paths to dat files for frame sensoring or txt file (inclusion list - with 1s being include and in a row or column tsv form.)")
+    parser.add_argument("--left-surface-files", dest='left_surface_paths', required=True, action="extend", nargs="+",
+                        help="Paths to left surface files")
+    parser.add_argument("--right-surface-files", dest='right_surface_paths', required=True, action="extend", nargs="+",
+                        help="Paths to left surface files")
 
     # Cluster method:
     parser.add_argument("--method", dest='method', choices=["infomaps", "kmeans"], default="infomaps",
@@ -226,6 +240,8 @@ def main(test_args=None):
 
     full_pipeline(args.ciftis, args.subject_ids, args.sample_labels, args.out_dir,
                   censor_files=args.censor_files,
+                  left_surface_paths=args.left_surface_paths,
+                  right_surface_paths=args.right_surface_paths,
                   overwrite=args.overwrite,
                   silent=not args.verbose,
                   method=args.method,

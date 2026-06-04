@@ -27,6 +27,7 @@ class TestPipeline(unittest.TestCase):
         self.assertEqual(paths["network-dlabel"], [cts.TEST_OUTPUT_NETWORK_DLABEL_PATH])
         self.assertEqual(paths["parcel-plot"], [cts.TEST_OUTPUT_PARCEL_PLOT_PATH])
         self.assertEqual(paths["qc-plot"], [cts.TEST_OUTPUT_QC_PLOT_PATH])
+        self.assertEqual(paths["distance-matrix"], [cts.TEST_OUTPUT_DIST_MATRIX_PATH])
 
     def test_load_voxel_data(self):
         """ """
@@ -41,7 +42,9 @@ class TestPipeline(unittest.TestCase):
         pm.get_arguments(test_args=["-c", cts.TEST_DTSERIES_PATH, "-o", TEST_DIR_PATH,
                                     "-i", cts.TEST_SUBJECT_ID,
                                     "-l", cts.TEST_SAMPLE_LABEL,
-                                    "--censor-file", cts.TEST_DTSERIES_CENSOR_FILE])
+                                    "--left-surface-files", cts.TEST_SURFACE_LEFT_PATH,
+                                    "--right-surface-files", cts.TEST_SURFACE_RIGHT_PATH,
+                                    "--censor-files", cts.TEST_DTSERIES_CENSOR_FILE])
 
 
     def test_pm_txt_arguments(self):
@@ -50,6 +53,8 @@ class TestPipeline(unittest.TestCase):
                                     "-o", TEST_DIR_PATH,
                                     "-i", cts.TEST_SUBJECT_IDS_LIST_PATH,
                                     "-l", cts.TEST_SAMPLE_LABELS_LIST_PATH,
+                                    "--left-surface-files", cts.TEST_SURFACE_LEFT_LIST_PATH,
+                                    "--right-surface-files", cts.TEST_SURFACE_RIGHT_LIST_PATH,
                                     "--censor-file", cts.TEST_DTSERIES_CENSOR_FILE_LIST_PATH])
 
     def test_full_pipeline(self):
@@ -59,6 +64,8 @@ class TestPipeline(unittest.TestCase):
 
         pm.precision_mapping(cts.TEST_DTSERIES_PATH, cts.TEST_SUBJECT_ID,
                              cts.TEST_SAMPLE_LABEL, TEST_DIR_PATH,
+                             left_surface_paths=cts.TEST_SURFACE_LEFT_PATH,
+                             right_surface_paths=cts.TEST_SURFACE_RIGHT_PATH,
                              sparsity=0.01, overwrite=True,
                              n_cores=1, n_infomaps_reps=1)
 
@@ -71,7 +78,9 @@ class TestPipeline(unittest.TestCase):
                            "-o", TEST_DIR_PATH,
                            "-i", cts.TEST_SUBJECT_ID,
                            "-l", cts.TEST_SAMPLE_LABEL,
-                           # "--overwrite", 
+                           "--left-surface-files", cts.TEST_SURFACE_LEFT_PATH,
+                           "--right-surface-files", cts.TEST_SURFACE_RIGHT_PATH,
+                           "--overwrite", 
                            "--spatial-filter-n-parcels", "10",
                            "--spatial-filter-size", "1",
                            "--n-reps", "1", "--sparsity", "0.01"])
@@ -85,6 +94,8 @@ class TestPipeline(unittest.TestCase):
                            "-o", TEST_DIR_PATH,
                            "-i", cts.TEST_SUBJECT_IDS_LIST_PATH,
                            "-l", cts.TEST_SAMPLE_LABELS_LIST_PATH,
+                           "--left-surface-files", cts.TEST_SURFACE_LEFT_LIST_PATH,
+                           "--right-surface-files", cts.TEST_SURFACE_RIGHT_LIST_PATH,
                            "--censor-file", cts.TEST_DTSERIES_CENSOR_FILE_LIST_PATH,
                            "--overwrite",
                            "--n-reps", "1", "--sparsity", "0.01"])
