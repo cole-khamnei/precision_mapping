@@ -29,14 +29,14 @@ def generate_voxel_FC(voxel_data,
     """ """
     
 
-    if str(mask).isdigit():
-        mask = constants.get_geodesic_distance_mask_path(int(mask))
+    # if str(mask).isdigit():
+    #     mask = constants.get_geodesic_distance_mask_path(int(mask))
 
-    if str(mask) == "debug":
-        mask = f"{constants.BRAIN_DISTANCE_DIR}/mask_test.npz"
+    # if str(mask) == "debug":
+    #     mask = f"{constants.BRAIN_DISTANCE_DIR}/mask_test.npz"
 
-    if not (mask is None or mask == "debug"):
-        pass
+    # if not (mask is None or mask == "debug"):
+    #     pass
         # raise NotImplementedError("Masking is not working right now options are None and 'debug'")
 
     mask = scipy.sparse.load_npz(mask) if mask else None
@@ -118,6 +118,7 @@ def generate_correlation_batch(cifti_paths, save_paths,
                                **SC_kwargs):
     """ too optimized lol, simpler and slower is often better -.-"""
     assert all(os.path.exists(os.path.dirname(path)) for path in save_paths)
+    assert len(cifti_paths) == len(save_paths)
 
     results = []
     gen_desc = "Generating vertex-level FC"
@@ -132,6 +133,10 @@ def generate_correlation_batch(cifti_paths, save_paths,
         return written_save_paths
 
     censor_files = [None] * len(cifti_paths) if censor_files is None else censor_files
+    mask_paths = [None] * len(cifti_paths) if mask is None else mask
+    assert len(censor_files) == len(censor_files)
+    assert len(mask_paths) == len(mask_paths)
+
 
     with ThreadPoolExecutor(max_workers=3) as executor:
 
@@ -140,6 +145,7 @@ def generate_correlation_batch(cifti_paths, save_paths,
                                             censor_files[load_indices[0]])
         for j, load_index in enumerate(load_indices):
             save_path = save_paths[load_index]
+            mask_path = mask_paths[load_index]
             voxel_data = future_voxel_data.result()
             if j < len(load_indices) - 1:
                 future_voxel_data = executor.submit(cifti_tools.load_voxel_data,
@@ -156,7 +162,7 @@ def generate_correlation_batch(cifti_paths, save_paths,
             voxel_data = voxel_data[:max_trs] if max_trs else voxel_data
             sc = generate_voxel_FC(voxel_data, save_path=None, sparsity=sparsity,
                                    exclude_index_path=exclude_index_path,
-                                   mask=mask,
+                                   mask=mask_path,
                                    block_size=block_size, leave=leave, **SC_kwargs)
 
             # Asynchronously save files (takes ~3 seconds on 6Gb/s NAS)

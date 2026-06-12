@@ -3,6 +3,7 @@ import nibabel as nb
 import numpy as np
 import multiprocess as mp
 
+import scipy
 from scipy.sparse import lil_matrix
 from tqdm.auto import tqdm
 
@@ -33,6 +34,7 @@ def parallel_build_sparse_geodesic_matrix(surface_path, max_dist=20.0, n_cpu=8, 
     compute_chunk = lambda idx_range: build_sparse_geodesic_matrix(coords, triangles, max_dist=max_dist, idx_range=idx_range)
 
     idx_range_sets = np.array_split(np.arange(len(coords)), n_splits)
+    # idx_range_sets = np.array_split(np.arange(1), n_splits)
     with mp.Pool(processes=n_cpu) as pool:
         if pbar:
             pbar_kwargs["desc"] = colored(f"Calculating {hl} hemisphere distances", "cyan")
@@ -44,8 +46,7 @@ def parallel_build_sparse_geodesic_matrix(surface_path, max_dist=20.0, n_cpu=8, 
     return D
 
 
-
-def calc_surf_distance_matrix(left_surface_paths, right_surface_paths, dist_matrix_paths, 
+def calc_surf_distance_matrix(left_surface_paths, right_surface_paths, dist_matrix_paths, distance_threshold=10,
                               method="approximate"):
     """ """
     assert method in ["approximate", "exact"]
@@ -58,17 +59,36 @@ def calc_surf_distance_matrix(left_surface_paths, right_surface_paths, dist_matr
                 desc=colored("Building distance matrices", constants.MAIN_TERM_COLOR),
                 colour=constants.MAIN_PBAR_COLOR)
 
+        res = []
         for args in zip(left_surface_paths, right_surface_paths, dist_matrix_paths):
-            calc_surf_distance_matrix(*args, method="approximate")
+            res.append(calc_surf_distance_matrix(*args, method="approximate"))
             pbar.update(1)
         pbar.close()
 
-        return
+        return res
 
     if method == "approximate":
+        # approximate method is has <0.1% error if using a distance threshold of 10 mm, so effect on pfm is that or smaller
+
         build_geodesic_matrix_kwargs = dict(max_dist=50.0, n_cpu=8, n_splits=100)
         D_left = parallel_build_sparse_geodesic_matrix(left_surface_paths, hl="left", **build_geodesic_matrix_kwargs)
         D_right = parallel_build_sparse_geodesic_matrix(right_surface_paths, hl="right", **build_geodesic_matrix_kwargs)
-        raise NotImplementedError
+
+        D_cortex = scipy.sparse.block_diag([D_left, D_right])
+
+        # following is only true if fully ignoring subcortex
+        # TODO: fully ignore subcortex?
+        D_full = scipy.sparse.coo_matrix((D_cortex.data, (D_cortex.row, D_cortex.col)), shape=(91_282, 91_282)).tocsr()
+        scipy.sparse.save_npz(dist_matrix_paths, D_full)
+
+        mask_npz = D_full.copy()
+        csr_mask = mask_npz.data < distance_threshold
+        mask_npz.data[csr_mask] = 0
+        mask_npz.eliminate_zeros()
+        dist_mask_path = dist_matrix_paths.replace(".npz", f"_mask_{distance_threshold}.npz")
+        scipy.sparse.save_npz(dist_mask_path, mask_npz)
+
+        return dist_mask_path
+
     else:
         raise NotImplementedError

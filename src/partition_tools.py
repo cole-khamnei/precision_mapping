@@ -108,10 +108,11 @@ def write_network_dlabel(network_partition_path, network_dlabel_path, template_c
 
 
 def calculate_network_surface_areas(network_partition_path, network_sizes_csv,
+                                    left_surface_paths, right_surface_paths,
                                     overwrite=False, pbar=True, **sa_kwargs):
     """ """
 
-    args = [network_partition_path, network_sizes_csv]
+    args = [network_partition_path, network_sizes_csv, left_surface_paths, right_surface_paths]
     kwargs = dict(overwrite=overwrite, pbar=pbar, pbar_kwargs=dict(desc="Writing network size csvs"), **sa_kwargs)
     if utils.multicall(calculate_network_surface_areas, *args, **kwargs):
         return
@@ -120,6 +121,7 @@ def calculate_network_surface_areas(network_partition_path, network_sizes_csv,
         utils.printer(f"{network_sizes_csv} already exists, skipping. Can use --overwrite to overwrite.")
         return
 
+    sa_kwargs["surface_files"] = [left_surface_paths, right_surface_paths]
     _, _, SA_ref_cortex = sfm.get_vertex_surface_area_maps(**sa_kwargs)
 
     network_indices, network_labels = np.load(network_partition_path)

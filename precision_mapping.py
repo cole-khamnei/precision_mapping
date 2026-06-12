@@ -89,14 +89,15 @@ def full_pipeline(dtseries_paths, subject_ids, sample_labels, out_dir,
     else:
         parcel_detection_save_paths = paths["parcel-partition"]
 
-    distances.calc_surf_distance_matrix(left_surface_paths, right_surface_paths, paths["distance-matrix"])
+    paths["distance-mask"] = distances.calc_surf_distance_matrix(left_surface_paths, right_surface_paths, 
+                                                                 paths["distance-matrix"], distance_threshold=10)
 
     if method == "infomaps":
         infomaps_parcel_detection(dtseries_paths,
                                   paths["vertex-fc"],
                                   parcel_detection_save_paths,
                                   paths,
-                                  censor_files, sparsity, mask, block_size,
+                                  censor_files, sparsity, paths["distance-mask"], block_size,
                                   overwrite, backend, device, n_cores, n_infomaps_reps, silent, seed)
     elif method == "kmeans":
         parcellate.kmeans_parcel_detection(dtseries_paths, paths["parcel-partition"],
@@ -120,7 +121,7 @@ def full_pipeline(dtseries_paths, subject_ids, sample_labels, out_dir,
     o_kwargs = dict(template_cifti=dtseries_paths[0], overwrite=overwrite)
     pt.write_parcel_dlabel(paths["parcel-partition"], paths["parcel-dlabel"], **o_kwargs)
     pt.write_network_dlabel(paths["network-partition"], paths["network-dlabel"], **o_kwargs)
-    pt.calculate_network_surface_areas(paths["network-partition"], paths["network-size-csv"], **o_kwargs)
+    pt.calculate_network_surface_areas(paths["network-partition"], paths["network-size-csv"], left_surface_paths, right_surface_paths, **o_kwargs)
     plot.QC_plots(paths["parcel-partition"], save_path=paths["qc-plot"], overwrite=overwrite)
     plot.parcel_plot(paths["parcel-partition"], paths["network-partition"],
                      sample_labels, paths["parcel-plot"], **o_kwargs)
