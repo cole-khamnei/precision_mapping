@@ -1,4 +1,4 @@
-infomap==2.8.0
+#infomap==2.8.0
 matplotlib==3.10.7
 multiprocess==0.70.18
 nibabel==5.3.2
